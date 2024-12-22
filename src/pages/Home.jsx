@@ -1,0 +1,35 @@
+import { Button } from "@mui/material";
+import React from "react";
+import { Link } from "react-router-dom";
+
+const Home = () => {
+  return (
+    <div
+      className="min-h-screen bg-cover bg-center overflow-x-hidden flex flex-col gap-10 items-center justify-center p-6"
+      style={{ backgroundImage: "url(/coverImage.jpg)" }}
+    >
+      <p className="text-white font-bold  text-4xl md:text-7xl w-full sm:w-[70%]  lg:w-1/2  text-center">
+        Solve problems all around the world
+      </p>
+      <p className="text-white font-bold text-lg md:text-2xl  w-full sm:w-[70%]  lg:w-1/2 text-center">
+        Fund and sign campaigns and missions in all the 234 countries on the
+        globe
+      </p>
+      <Button
+        sx={{
+          textTransform: "none",
+          backgroundColor: "#84cc16",
+          color: "white",
+        }}
+        className="mt-16 "
+      >
+        Get Started
+      </Button>
+      <p className="text-white text-lg  text-center w-full sm:w-[70%]  lg:w-1/2">
+        Already have an account? <Link href="/">Log in</Link>
+      </p>
+    </div>
+  );
+};
+
+export default Home;
