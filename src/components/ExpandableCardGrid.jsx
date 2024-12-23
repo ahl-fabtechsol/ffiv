@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FiGift } from "react-icons/fi";
 import { CiHeart } from "react-icons/ci";
 import { IoShareOutline } from "react-icons/io5";
-import { Avatar, LinearProgress } from "@mui/material"; // Changed to LinearProgress
+import { Avatar, LinearProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useOutsideClick } from "../hooks/useOutsideClick";
 
@@ -27,11 +27,11 @@ export function ExpandableCardGrid({ cards }) {
     }
 
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [active]);
 
-  useEffect(() => {
-    sessionStorage.setItem("activeState", JSON.stringify(active));
+    return () => {
+      document.body.style.overflow = "auto";
+      window.removeEventListener("keydown", onKeyDown);
+    };
   }, [active]);
 
   useOutsideClick(ref, () => setActive(null));
@@ -104,7 +104,7 @@ export function ExpandableCardGrid({ cards }) {
                     </motion.p>
                   </div>
 
-                  <motion.button
+                  <button
                     onClick={() =>
                       navigate(`/explore/${active.id}`, {
                         state: { active },
@@ -117,7 +117,7 @@ export function ExpandableCardGrid({ cards }) {
                     className="px-4 py-3 text-sm rounded-full font-bold bg-green-500 text-white"
                   >
                     Visit
-                  </motion.button>
+                  </button>
                 </div>
                 <div className="pt-4 relative px-4">
                   <motion.div
