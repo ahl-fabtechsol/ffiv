@@ -89,19 +89,17 @@ const Navbar = ({ type }) => {
           />
         </div>
 
-        {/* Mobile Drawer Trigger */}
         <div className="md:hidden">
           <button className={`${txtColor}`} onClick={() => toggleDrawer(true)}>
             <IoMdMenu className="h-6 w-6" />
           </button>
 
-          {/* Drawer (Mobile Menu) */}
           <Drawer
             anchor="right"
             open={openDrawer}
             onClose={() => toggleDrawer(false)}
           >
-            <div className="bg-black text-white p-6 w-64">
+            <div className="bg-black text-white p-6 w-64 h-screen">
               <div className="flex justify-end mb-4">
                 <button onClick={() => toggleDrawer(false)}>
                   <RxCross1 className="h-6 w-6 text-white" />

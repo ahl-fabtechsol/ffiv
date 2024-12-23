@@ -4,13 +4,14 @@ import { FiGift } from "react-icons/fi";
 import { CiHeart } from "react-icons/ci";
 import { IoShareOutline } from "react-icons/io5";
 import { Avatar, LinearProgress } from "@mui/material"; // Changed to LinearProgress
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useOutsideClick } from "../hooks/useOutsideClick";
 
 export function ExpandableCardGrid({ cards }) {
   const [active, setActive] = useState(null);
   const id = useId();
   const ref = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     function onKeyDown(event) {
@@ -104,6 +105,11 @@ export function ExpandableCardGrid({ cards }) {
                   </div>
 
                   <motion.button
+                    onClick={() =>
+                      navigate(`/explore/${active.id}`, {
+                        state: { active },
+                      })
+                    }
                     layout
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}

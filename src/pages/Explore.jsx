@@ -27,9 +27,11 @@ const Explore = () => {
             type="text"
             placeholder="Search"
             variant="outlined"
-            className="bg-transparent text-black placeholder:text-black w-[300px]"
+            className="bg-transparent text-black placeholder:text-black w-[300px] "
             InputProps={{
-              startAdornment: <FiSearch className="text-black ml-3" />,
+              startAdornment: (
+                <FiSearch className="text-black ml-1 me-4" size={25} />
+              ),
             }}
           />
         </div>
