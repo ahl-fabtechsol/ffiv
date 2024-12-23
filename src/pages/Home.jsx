@@ -3,7 +3,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Home = () => {
-  const navigate = useNavigate();
   return (
     <div
       className="min-h-screen bg-cover bg-center overflow-x-hidden flex flex-col gap-10 items-center justify-center p-6"
