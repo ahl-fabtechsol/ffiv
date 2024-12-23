@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
-export const FaqAccordion = ({ faqs }) => {
+const FaqAccordion = ({ faqs }) => {
   const [openIndex, setOpenIndex] = useState(null);
 
   const toggleFAQ = (index) => {
@@ -44,3 +44,5 @@ export const FaqAccordion = ({ faqs }) => {
     </Box>
   );
 };
+
+export default FaqAccordion;

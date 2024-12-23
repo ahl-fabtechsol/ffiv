@@ -1,7 +1,7 @@
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
-export const AnimatedTestimonials = ({ testimonials, autoplay = false }) => {
+const AnimatedTestimonials = ({ testimonials, autoplay = false }) => {
   const [active, setActive] = useState(0);
 
   const handleNext = () => {
@@ -78,3 +78,5 @@ export const AnimatedTestimonials = ({ testimonials, autoplay = false }) => {
     </div>
   );
 };
+
+export default AnimatedTestimonials;

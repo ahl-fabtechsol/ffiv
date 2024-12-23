@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { motion } from "framer-motion";
 
-export const ProjectTimeline = ({ timeline }) => {
+const ProjectTimeline = ({ timeline }) => {
   return (
     <Box className="px-4 py-16 lg:py-24">
       <motion.h2
@@ -57,3 +57,5 @@ export const ProjectTimeline = ({ timeline }) => {
     </Box>
   );
 };
+
+export default ProjectTimeline;

@@ -2,9 +2,9 @@ import { Box, LinearProgress, Button } from "@mui/material";
 import { useLocation, useParams } from "react-router-dom";
 import { faqs, teamData, testimonials, timeline } from "../lib/dummyData";
 import TeamCard from "../components/TeamCard";
-import { AnimatedTestimonials } from "../components/AnimatedTestimonials";
-import { FaqAccordion } from "../components/FaqAccordian";
-import { ProjectTimeline } from "../components/ProjectTimeline";
+import AnimatedTestimonials from "../components/AnimatedTestimonials";
+import FaqAccordion from "../components/FaqAccordian";
+import ProjectTimeline from "../components/ProjectTimeline";
 
 export default function Page() {
   const { id } = useParams();
@@ -15,8 +15,9 @@ export default function Page() {
 
   return (
     <Box>
-      <Box className="relative min-h-screen w-full overflow-hidden">
+      <Box className="relative min-h-screen w-full ">
         <video
+          preload="auto"
           autoPlay
           loop
           muted
@@ -25,7 +26,8 @@ export default function Page() {
           <source src="/demoVideo.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <Box className="relative z-10 min-h-screen flex flex-col md:gap-10 gap-6 items-center justify-center glass-blur p-20 text-center">
+
+        <Box className="relative z-10 min-h-screen flex flex-col md:gap-10 gap-6 items-center justify-center p-20 text-center glass-blur">
           <p className="md:text-7xl text-3xl font-bold text-white">
             {data.title || "Project Title"}
           </p>
@@ -84,6 +86,7 @@ export default function Page() {
         <p className="text-3xl font-bold text-center ">
           What Backers Are Saying
         </p>
+
         <AnimatedTestimonials testimonials={testimonials} autoplay={true} />
       </Box>
 
