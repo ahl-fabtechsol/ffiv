@@ -65,18 +65,20 @@ const Login = () => {
             </Box>
 
             <Box className="flex justify-center">
-              <Button
-                className="bg_primary p-10 "
-                sx={{
-                  textTransform: "none",
-                  color: "white",
-                  padding: "10px",
-                  width: "250px",
-                  borderRadius: "50px",
-                }}
-              >
-                <Link to="/">Log in</Link>
-              </Button>
+              <Link to="/">
+                <Button
+                  className="bg_primary p-10 "
+                  sx={{
+                    textTransform: "none",
+                    color: "white",
+                    padding: "10px",
+                    width: "250px",
+                    borderRadius: "50px",
+                  }}
+                >
+                  Log in
+                </Button>
+              </Link>
             </Box>
 
             <p className="text-center text-sm mt-6">
