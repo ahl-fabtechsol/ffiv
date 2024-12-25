@@ -16,14 +16,16 @@ const Home = () => {
         globe
       </p>
       <Button
+        className="bg_primary p-10 "
         sx={{
           textTransform: "none",
-          backgroundColor: "#84cc16",
           color: "white",
+          padding: "10px",
+          width: "250px",
+          borderRadius: "50px",
         }}
-        className="mt-16 "
       >
-        Get Started
+        <Link to="/login"> Get Started</Link>
       </Button>
       <p className="text-white text-lg  text-center w-full sm:w-[70%]  lg:w-1/2">
         Already have an account? <Link href="/">Log in</Link>
