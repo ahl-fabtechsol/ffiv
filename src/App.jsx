@@ -4,10 +4,14 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import ExploreDetail from "./pages/ExploreDetail";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 const App = () => {
   return (
     <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
       <Route element={<Layout type="home" />}>
         <Route path="/" element={<Home />} />
         <Route path="/explore/:id" element={<ExploreDetail />} />
