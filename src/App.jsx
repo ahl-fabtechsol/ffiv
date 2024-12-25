@@ -6,12 +6,14 @@ import Explore from "./pages/Explore";
 import ExploreDetail from "./pages/ExploreDetail";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import VerifyEmail from "./pages/VerifyEmail";
 
 const App = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route element={<Layout type="home" />}>
         <Route path="/" element={<Home />} />
         <Route path="/explore/:id" element={<ExploreDetail />} />

@@ -35,7 +35,7 @@ const Signup = () => {
   };
 
   const handleFinish = () => {
-    navigate("/login");
+    navigate("/verify-email");
   };
 
   const handleChange = (e) => {
