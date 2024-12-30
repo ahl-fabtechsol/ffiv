@@ -12,8 +12,7 @@ const Home = () => {
         Solve problems all around the world
       </p>
       <p className="text-white font-bold text-lg md:text-2xl  w-full sm:w-[70%]  lg:w-1/2 text-center">
-        Fund and sign campaigns and missions in all the 234 countries on the
-        globe
+        Fund and sign campaigns and missions in all the 234 countries
       </p>
       <Link to="/login">
         <Button
