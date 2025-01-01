@@ -49,7 +49,7 @@ const Navbar = ({ type }) => {
             Explore
           </Link>
           <Link
-            to="/"
+            to="/campaign"
             className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
           >
             Campaigns
@@ -118,7 +118,7 @@ const Navbar = ({ type }) => {
                 <Link to="/explore" className="text-white text-lg">
                   Explore
                 </Link>
-                <Link to="/services" className="text-white text-lg">
+                <Link to="/campaign" className="text-white text-lg">
                   Campaigns
                 </Link>
               </nav>

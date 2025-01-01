@@ -8,10 +8,10 @@ const Home = () => {
       className="min-h-screen bg-cover bg-center overflow-x-hidden flex flex-col gap-10 items-center justify-center p-6"
       style={{ backgroundImage: "url(/coverImage.jpg)" }}
     >
-      <p className="text-white font-bold  text-4xl md:text-7xl w-full sm:w-[70%]  lg:w-1/2  text-center">
+      <p className="text-white font-extrabold  text-4xl md:text-5xl w-full sm:w-[70%]  lg:w-1/2  text-center">
         Solve problems all around the world
       </p>
-      <p className="text-white font-bold text-lg md:text-2xl  w-full sm:w-[70%]  lg:w-1/2 text-center">
+      <p className="text-white font-medium text-lg md:text-2xl  w-full sm:w-[70%]  lg:w-1/2 text-center">
         Fund and sign campaigns and missions in all the 234 countries
       </p>
       <Link to="/login">

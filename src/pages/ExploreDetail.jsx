@@ -28,10 +28,10 @@ export default function Page() {
         </video>
 
         <Box className="relative z-10 min-h-screen flex flex-col md:gap-10 gap-6 items-center justify-center p-20 text-center glass-blur">
-          <p className="md:text-7xl text-3xl font-bold text-white">
+          <p className="md:text-5xl text-3xl font-extrabold text-white">
             {data.title || "Project Title"}
           </p>
-          <p className="md:text-3xl text-lg text-white font-semibold">
+          <p className="md:text-xl text-lg text-white font-medium">
             {data.description || "An innovative project changing the world."}
           </p>
           <Button
