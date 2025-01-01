@@ -7,6 +7,7 @@ import ExploreDetail from "./pages/ExploreDetail";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import VerifyEmail from "./pages/VerifyEmail";
+import Campaign from "./pages/campaign/Campaign";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
       <Route element={<Layout type="home" />}>
         <Route path="/" element={<Home />} />
         <Route path="/explore/:id" element={<ExploreDetail />} />
+        <Route path="/campaign" element={<Campaign />} />
       </Route>
       <Route element={<Layout type="other" />}>
         <Route path="/explore" element={<Explore />} />
