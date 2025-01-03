@@ -193,7 +193,7 @@ const CreateCampaign = () => {
             }}
           />
         </Box>
-        <Box className="flex gap-6 ">
+        <Box className="flex sm:flex-row flex-col gap-6 ">
           <Box className="flex flex-col w-full">
             <p className="text-lg font-semibold">Category</p>
             <FormControl
@@ -293,7 +293,7 @@ const CreateCampaign = () => {
             }}
           />
         </Box>
-        <Box className="flex gap-6 ">
+        <Box className="flex sm:flex-row flex-col gap-6 ">
           <Box className="flex flex-col gap-2 w-full">
             <p className="text-lg font-semibold">Start Date</p>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -368,7 +368,7 @@ const CreateCampaign = () => {
             key={member.id}
             className="flex flex-col gap-6 p-6 border rounded-xl bg-white "
           >
-            <Box className="flex items-center gap-6">
+            <Box className="flex xs:flex-row flex-col items-center gap-6">
               <Avatar
                 src={member.picture ? URL.createObjectURL(member.picture) : ""}
                 sx={{ width: 100, height: 100, border: "3px solid #84cc16" }}
@@ -493,7 +493,7 @@ const CreateCampaign = () => {
             key={backer.id}
             className="flex flex-col gap-6 p-6 border rounded-xl bg-white "
           >
-            <Box className="flex items-center gap-6">
+            <Box className="flex xs:flex-row flex-col items-center gap-6">
               <Avatar
                 src={backer.picture ? URL.createObjectURL(backer.picture) : ""}
                 sx={{ width: 100, height: 100, border: "3px solid #84cc16" }}
