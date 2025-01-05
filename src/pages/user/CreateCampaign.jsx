@@ -18,6 +18,8 @@ import { MdDelete } from "react-icons/md";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { IoMdAdd } from "react-icons/io";
 import BasicModal from "../../modals/BasicModal";
+import VideoUpload from "../../components/VideoUpload";
+import ImageUpload from "../../components/ImageUpload";
 
 const CreateCampaign = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -355,6 +357,8 @@ const CreateCampaign = () => {
             }}
           />
         </Box>
+        <VideoUpload />
+        <ImageUpload />
       </Box>
       <Box className="flex flex-col mt-10 gap-6">
         <Box className="flex flex-col gap-3">
