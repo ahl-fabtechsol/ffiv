@@ -1,10 +1,11 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { IconButton } from "@mui/material";
 import { MdCancel } from "react-icons/md";
+import VideoUpload from "../components/VideoUpload";
+import ImageUpload from "../components/ImageUpload";
 
 const style = {
   position: "absolute",
@@ -36,7 +37,7 @@ const style = {
   "scrollbar-width": "none",
 };
 
-const BasicModal = (props) => {
+const UploadDocumentsActionModal = (props) => {
   const handleSave = () => {};
   return (
     <Modal
@@ -47,13 +48,15 @@ const BasicModal = (props) => {
     >
       <Box sx={style}>
         <Box className="flex justify-between items-center">
-          <p className="text-xl font-bold">Add Basic Info</p>
+          <p className="text-xl font-bold">Upload Doccuments</p>
 
           <IconButton onClick={props.onClose}>
             <MdCancel size={25} color="black" />
           </IconButton>
         </Box>
         <Box className="flex flex-col my-10 gap-6">
+          <VideoUpload />
+          <ImageUpload />
           <Box className="flex justify-end gap-3 items-center">
             <Button
               onClick={props.onClose}
@@ -97,4 +100,4 @@ const BasicModal = (props) => {
   );
 };
 
-export default BasicModal;
+export default UploadDocumentsActionModal;
