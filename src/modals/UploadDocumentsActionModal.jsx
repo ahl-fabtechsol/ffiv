@@ -1,4 +1,3 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
@@ -6,6 +5,7 @@ import { IconButton } from "@mui/material";
 import { MdCancel } from "react-icons/md";
 import VideoUpload from "../components/VideoUpload";
 import ImageUpload from "../components/ImageUpload";
+import { useEffect, useState } from "react";
 
 const style = {
   position: "absolute",
@@ -38,7 +38,17 @@ const style = {
 };
 
 const UploadDocumentsActionModal = (props) => {
-  const handleSave = () => {};
+  const { type } = props;
+  const [videoFile, setVideoFile] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const handleSave = () => {
+    props.onSave({ videoFile, imageFile });
+  };
+
+  useEffect(() => {
+    if (type === "edit") {
+    }
+  });
   return (
     <Modal
       open={props.open}
@@ -55,8 +65,8 @@ const UploadDocumentsActionModal = (props) => {
           </IconButton>
         </Box>
         <Box className="flex flex-col my-10 gap-6">
-          <VideoUpload />
-          <ImageUpload />
+          <VideoUpload setVideoFile={setVideoFile} />
+          <ImageUpload setImageFile={setImageFile} />
           <Box className="flex justify-end gap-3 items-center">
             <Button
               onClick={props.onClose}

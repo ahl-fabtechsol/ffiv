@@ -3,9 +3,9 @@ import { Button, Box } from "@mui/material";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
 
-const ImageUpload = () => {
+const ImageUpload = (props) => {
+  const { setImageFile } = props;
   const [imageSrc, setImageSrc] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
   const imageRef = useRef(null);
 
   const handleFileChange = (e) => {

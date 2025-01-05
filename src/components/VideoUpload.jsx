@@ -3,9 +3,9 @@ import { Button, Box } from "@mui/material";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
 
-const VideoUpload = () => {
+const VideoUpload = (props) => {
+  const { setVideoFile } = props;
   const [videoSrc, setVideoSrc] = useState(null);
-  const [videoFile, setVideoFile] = useState(null);
   const videoRef = useRef(null);
 
   const handleFileChange = (e) => {
