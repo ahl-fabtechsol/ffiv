@@ -1,10 +1,8 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
-import { Avatar, IconButton, TextField, Typography } from "@mui/material";
+import { IconButton, TextField } from "@mui/material";
 import { MdCancel, MdDelete } from "react-icons/md";
-import { useState } from "react";
-import { IoCloudUploadOutline } from "react-icons/io5";
 import { IoMdAdd } from "react-icons/io";
 
 const style = {
@@ -37,45 +35,34 @@ const style = {
   "scrollbar-width": "none",
 };
 
-const BackersActionModal = (props) => {
-  const { backers, setBackers } = props;
+const RewardsActionModal = (props) => {
+  const { rewards, setRewards } = props;
 
-  const handleAddBacker = () => {
-    const newBacker = {
-      id: Date.now(),
-      name: "",
-      designation: "",
-      comment: "",
-      picture: null,
-    };
-    setBackers([...backers, newBacker]);
+  const handleAddReward = () => {
+    setRewards([
+      ...rewards,
+      { id: Date.now(), name: "", price: "", features: [] },
+    ]);
   };
 
-  const handleRemoveBacker = (id) => {
-    setBackers(backers.filter((backer) => backer.id !== id));
+  const handleRemoveReward = (id) => {
+    setRewards(rewards.filter((reward) => reward.id !== id));
   };
 
-  const handleChangeBacker = (id, field, value) => {
-    setBackers(
-      backers.map((backer) =>
-        backer.id === id ? { ...backer, [field]: value } : backer
+  const handleChangeReward = (id, field, value) => {
+    setRewards(
+      rewards.map((reward) =>
+        reward.id === id ? { ...reward, [field]: value } : reward
       )
     );
   };
 
-  const handlePictureChangeBacker = (id, event) => {
-    const file = event.target.files[0];
-    setBackers(
-      backers.map((backer) =>
-        backer.id === id ? { ...backer, picture: file } : backer
-      )
-    );
-  };
-
-  const handleRemovePictureBacker = (id) => {
-    setBackers(
-      backers.map((backer) =>
-        backer.id === id ? { ...backer, picture: null } : backer
+  const handleRewardFeaturesChange = (id, value) => {
+    setRewards(
+      rewards.map((reward) =>
+        reward.id === id
+          ? { ...reward, features: value ? value.split("\n") : [] }
+          : reward
       )
     );
   };
@@ -91,71 +78,30 @@ const BackersActionModal = (props) => {
     >
       <Box sx={style}>
         <Box className="flex justify-between items-center">
-          <p className="text-xl font-bold">Add Backers</p>
+          <p className="text-xl font-bold">Add Rewards</p>
 
           <IconButton onClick={props.onClose}>
             <MdCancel size={25} color="black" />
           </IconButton>
         </Box>
         <Box className="flex flex-col gap-3">
-          <p className="text-3xl font-bold">Backers</p>
+          <p className="text-3xl font-bold">Rewards</p>
           <p className="text-sm font-extralight">
-            Add your backers here. You can add multiple backers and their images
+            You can customize rewards according to your plans.
           </p>
         </Box>
-        {backers.map((backer, index) => (
+        {rewards.map((reward, index) => (
           <Box
-            key={backer.id}
-            className="flex flex-col gap-6 p-6 border rounded-xl bg-white my-3"
+            key={reward.id}
+            className="flex flex-col gap-6 p-6 border rounded-xl bg-white shadow-md my-3"
           >
-            <Box className="flex xs:flex-row flex-col items-center gap-6">
-              <Avatar
-                src={backer.picture ? URL.createObjectURL(backer.picture) : ""}
-                sx={{ width: 100, height: 100, border: "3px solid #84cc16" }}
-              />
-              <Box className="flex flex-col gap-2">
-                {backer.picture ? (
-                  <Button
-                    onClick={() => handleRemovePictureBacker(backer.id)}
-                    startIcon={<MdDelete />}
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                  >
-                    Remove Image
-                  </Button>
-                ) : (
-                  <Button
-                    component="label"
-                    startIcon={<IoCloudUploadOutline />}
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#84cc16",
-                      "&:hover": { backgroundColor: "#6aa40f" },
-                    }}
-                  >
-                    Upload Image
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={(e) => handlePictureChangeBacker(backer.id, e)}
-                    />
-                  </Button>
-                )}
-                <Typography variant="caption" color="text.secondary">
-                  Upload high-quality profile picture.
-                </Typography>
-              </Box>
-            </Box>
-
             <TextField
               fullWidth
-              label="Name"
+              label="Reward Name"
               variant="outlined"
-              value={backer.name}
+              value={reward.name}
               onChange={(e) =>
-                handleChangeBacker(backer.id, "name", e.target.value)
+                handleChangeReward(reward.id, "name", e.target.value)
               }
               required
               sx={{
@@ -172,11 +118,12 @@ const BackersActionModal = (props) => {
 
             <TextField
               fullWidth
-              label="Designation"
+              label="Price"
               variant="outlined"
-              value={backer.designation}
+              type="number"
+              value={reward.price}
               onChange={(e) =>
-                handleChangeBacker(backer.id, "designation", e.target.value)
+                handleChangeReward(reward.id, "price", e.target.value)
               }
               required
               sx={{
@@ -192,14 +139,16 @@ const BackersActionModal = (props) => {
             />
 
             <TextField
+              label="Reward Features (One per line)"
               fullWidth
-              label="Comment"
-              variant="outlined"
-              value={backer.comment}
-              onChange={(e) =>
-                handleChangeBacker(backer.id, "comment", e.target.value)
-              }
+              multiline
+              type="text"
+              rows={5}
+              value={reward.features.join("\n")}
               required
+              onChange={(e) =>
+                handleRewardFeaturesChange(reward.id, e.target.value)
+              }
               sx={{
                 "& label.Mui-focused": {
                   color: "#84cc16",
@@ -215,7 +164,7 @@ const BackersActionModal = (props) => {
             <Box className="flex justify-end">
               <IconButton
                 color="error"
-                onClick={() => handleRemoveBacker(backer.id)}
+                onClick={() => handleRemoveReward(reward.id)}
               >
                 <MdDelete />
               </IconButton>
@@ -224,9 +173,9 @@ const BackersActionModal = (props) => {
         ))}
 
         <Button
-          onClick={handleAddBacker}
-          variant="contained"
           startIcon={<IoMdAdd />}
+          onClick={handleAddReward}
+          variant="contained"
           sx={{
             textTransform: "none",
             backgroundColor: "#84cc16",
@@ -239,7 +188,7 @@ const BackersActionModal = (props) => {
             },
           }}
         >
-          Add New Backer
+          Add New Reward
         </Button>
         <Box className="flex flex-col my-10 gap-6">
           <Box className="flex justify-end gap-3 items-center">
@@ -285,4 +234,4 @@ const BackersActionModal = (props) => {
   );
 };
 
-export default BackersActionModal;
+export default RewardsActionModal;

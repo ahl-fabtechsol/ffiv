@@ -107,7 +107,7 @@ const TeamMembersActionModal = (props) => {
           {teamMembers.map((member, index) => (
             <Box
               key={member.id}
-              className="flex flex-col gap-6 p-6 border rounded-xl bg-white "
+              className="flex flex-col gap-6 p-6 border rounded-xl bg-white my-3"
             >
               <Box className="flex xs:flex-row flex-col items-center gap-6">
                 <Avatar
