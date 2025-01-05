@@ -24,12 +24,10 @@ import BasicModal from "../../../modals/BasicModal";
 import BasicInfoSection from "./BasicInfoSection";
 import UploadDocumentsSections from "./UploadDocumentsSections";
 import TeamMembersSection from "./TeamMembersSection";
+import BackersSection from "./BackersSection";
 
 const CreateCampaign = () => {
   const [openModal, setOpenModal] = useState(false);
-  const [teamMembers, setTeamMembers] = useState([
-    { id: Date.now(), name: "", role: "", picture: null },
-  ]);
 
   const [backers, setBackers] = useState([
     {
@@ -122,45 +120,6 @@ const CreateCampaign = () => {
     );
   };
 
-  const handleAddMember = () => {
-    const newMember = {
-      id: Date.now(),
-      name: "",
-      role: "",
-      picture: null,
-    };
-    setTeamMembers([...teamMembers, newMember]);
-  };
-
-  const handleRemoveMember = (id) => {
-    setTeamMembers(teamMembers.filter((member) => member.id !== id));
-  };
-
-  const handleChange = (id, field, value) => {
-    setTeamMembers(
-      teamMembers.map((member) =>
-        member.id === id ? { ...member, [field]: value } : member
-      )
-    );
-  };
-
-  const handlePictureChange = (id, event) => {
-    const file = event.target.files[0];
-    setTeamMembers(
-      teamMembers.map((member) =>
-        member.id === id ? { ...member, picture: file } : member
-      )
-    );
-  };
-
-  const handleRemovePicture = (id) => {
-    setTeamMembers(
-      teamMembers.map((member) =>
-        member.id === id ? { ...member, picture: null } : member
-      )
-    );
-  };
-
   return (
     <Box className="p-8 flex flex-col gap-8">
       {openModal && (
@@ -182,32 +141,7 @@ const CreateCampaign = () => {
 
       <UploadDocumentsSections />
       <TeamMembersSection />
-      <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
-        <p className="text-xl font-bold">Tell Us about Your Backers </p>
-        <p className="font-extralight text-sm">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident
-          asperiores iste laboriosam commodi labore quibusdam unde nesciunt
-          nobis quas cumque consectetur pariatur, odit reiciendis vitae.
-        </p>
-        <Button
-          onClick={() => setOpenModal(true)}
-          variant="contained"
-          startIcon={<IoMdAdd />}
-          sx={{
-            textTransform: "none",
-            backgroundColor: "#84cc16",
-            color: "white",
-            padding: "12px",
-            width: "100%",
-            borderRadius: "10px",
-            "&:hover": {
-              backgroundColor: "#6aa40f",
-            },
-          }}
-        >
-          Add Backers
-        </Button>
-      </Box>
+      <BackersSection />
       <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
         <p className="text-xl font-bold">Add Faqs </p>
         <p className="font-extralight text-sm">
@@ -261,128 +195,6 @@ const CreateCampaign = () => {
         </Button>
       </Box>
       <RewardSection />
-
-      <Box className="flex flex-col mt-10 gap-6">
-        <Box className="flex flex-col gap-3">
-          <p className="text-3xl font-bold">Tell us about your team members</p>
-          <p className="text-sm font-extralight">
-            Add team members by filling in their details below.
-          </p>
-        </Box>
-        {teamMembers.map((member, index) => (
-          <Box
-            key={member.id}
-            className="flex flex-col gap-6 p-6 border rounded-xl bg-white "
-          >
-            <Box className="flex xs:flex-row flex-col items-center gap-6">
-              <Avatar
-                src={member.picture ? URL.createObjectURL(member.picture) : ""}
-                sx={{ width: 100, height: 100, border: "3px solid #84cc16" }}
-              />
-              <Box className="flex flex-col gap-2">
-                {member.picture ? (
-                  <Button
-                    onClick={() => handleRemovePicture(member.id)}
-                    startIcon={<MdDelete />}
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                  >
-                    Remove Image
-                  </Button>
-                ) : (
-                  <Button
-                    component="label"
-                    startIcon={<IoCloudUploadOutline />}
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#84cc16",
-                      "&:hover": { backgroundColor: "#6aa40f" },
-                    }}
-                  >
-                    Upload Image
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={(e) => handlePictureChange(member.id, e)}
-                    />
-                  </Button>
-                )}
-                <Typography variant="caption" color="text.secondary">
-                  Upload high-quality profile picture.
-                </Typography>
-              </Box>
-            </Box>
-
-            <TextField
-              fullWidth
-              label="Name"
-              variant="outlined"
-              value={member.name}
-              onChange={(e) => handleChange(member.id, "name", e.target.value)}
-              required
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-
-            <TextField
-              fullWidth
-              label="Role"
-              variant="outlined"
-              value={member.role}
-              onChange={(e) => handleChange(member.id, "role", e.target.value)}
-              required
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-
-            <Box className="flex justify-end">
-              <IconButton
-                color="error"
-                onClick={() => handleRemoveMember(member.id)}
-              >
-                <MdDelete />
-              </IconButton>
-            </Box>
-          </Box>
-        ))}
-
-        <Button
-          onClick={handleAddMember}
-          variant="contained"
-          startIcon={<IoMdAdd />}
-          sx={{
-            textTransform: "none",
-            backgroundColor: "#84cc16",
-            color: "white",
-            padding: "12px",
-            width: "100%",
-            borderRadius: "10px",
-            "&:hover": {
-              backgroundColor: "#6aa40f",
-            },
-          }}
-        >
-          Add New Team Member
-        </Button>
-      </Box>
 
       <Box className="flex flex-col mt-10 gap-6">
         <Box className="flex flex-col gap-3">
