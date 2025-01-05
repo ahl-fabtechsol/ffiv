@@ -12,7 +12,7 @@ import Dashboardnav from "./dashboardLayout/Dashboard";
 import Dashboard from "./pages/user/Dashboard";
 import Messages from "./pages/user/Messages";
 import Notifications from "./pages/user/Notifications";
-import CreateCampaign from "./pages/user/CreateCampaign";
+import CreateCampaign from "./pages/user/createCampaign/CreateCampaign";
 import UserCampaign from "./pages/user/UserCampaign";
 
 const App = () => {

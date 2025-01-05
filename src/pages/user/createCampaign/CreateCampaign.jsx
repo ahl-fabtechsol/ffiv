@@ -17,9 +17,12 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { MdDelete } from "react-icons/md";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { IoMdAdd } from "react-icons/io";
-import BasicModal from "../../modals/BasicModal";
-import VideoUpload from "../../components/VideoUpload";
-import ImageUpload from "../../components/ImageUpload";
+import VideoUpload from "../../../components/VideoUpload";
+import ImageUpload from "../../../components/ImageUpload";
+import RewardSection from "../../../components/RewardSection";
+import BasicModal from "../../../modals/BasicModal";
+import BasicInfoSection from "./BasicInfoSection";
+import UploadDocumentsSections from "./UploadDocumentsSections";
 
 const CreateCampaign = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -158,10 +161,11 @@ const CreateCampaign = () => {
   };
 
   return (
-    <Box className="p-8">
+    <Box className="p-8 flex flex-col gap-8">
       {openModal && (
         <BasicModal open={openModal} onClose={() => setOpenModal(false)} />
       )}
+
       <Box className="flex flex-col gap-3">
         <p className="text-3xl font-bold">Create a Campaign</p>
         <p className="font-extralight text-sm">
@@ -173,193 +177,115 @@ const CreateCampaign = () => {
           numquam, aliquid rem. Officiis nobis illo pariatur tenetur qui?
         </p>
       </Box>
-      {/* <button onClick={() => setOpenModal(true)}>Modal check</button> */}
-      <Box className="mt-10 flex flex-col gap-6">
-        <Box className="flex flex-col gap-2">
-          <p className="text-lg font-semibold">Campaign Name</p>
-          <TextField
-            fullWidth
-            label="Campaign Name"
-            variant="outlined"
-            required
-            className="bg-white"
-            sx={{
-              "& label.Mui-focused": {
-                color: "#84cc16",
-              },
-              "& .MuiOutlinedInput-root": {
-                "&.Mui-focused fieldset": {
-                  borderColor: "#84cc16",
-                },
-              },
-            }}
-          />
-        </Box>
-        <Box className="flex sm:flex-row flex-col gap-6 ">
-          <Box className="flex flex-col w-full">
-            <p className="text-lg font-semibold">Category</p>
-            <FormControl
-              fullWidth
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            >
-              <InputLabel id="campign-category">Category</InputLabel>
-              <Select
-                fullWidth
-                className=" bg-white"
-                labelId="campaign-category"
-                label="Category"
-              >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-          <Box className="flex flex-col w-full">
-            <p className="text-lg font-semibold">Sub Category</p>
-            <FormControl
-              fullWidth
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            >
-              <InputLabel id="campign-subCategory">Sub Category</InputLabel>
-              <Select
-                fullWidth
-                className=" bg-white"
-                labelId="campaign-subCategory"
-                label="Sub Category"
-              >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-        </Box>
-        <Box className="flex flex-col gap-2">
-          <p className="text-lg font-semibold">Campaign Short Summary</p>
-          <TextField
-            fullWidth
-            label="Write a short detail"
-            variant="outlined"
-            required
-            className="bg-white"
-            sx={{
-              "& label.Mui-focused": {
-                color: "#84cc16",
-              },
-              "& .MuiOutlinedInput-root": {
-                "&.Mui-focused fieldset": {
-                  borderColor: "#84cc16",
-                },
-              },
-            }}
-          />
-        </Box>
-        <Box className="flex flex-col gap-2">
-          <p className="text-lg font-semibold">Campaign Detail</p>
-          <TextField
-            rows={6}
-            multiline
-            fullWidth
-            label="Write a short detail"
-            variant="outlined"
-            required
-            className="bg-white"
-            sx={{
-              "& label.Mui-focused": {
-                color: "#84cc16",
-              },
-              "& .MuiOutlinedInput-root": {
-                "&.Mui-focused fieldset": {
-                  borderColor: "#84cc16",
-                },
-              },
-            }}
-          />
-        </Box>
-        <Box className="flex sm:flex-row flex-col gap-6 ">
-          <Box className="flex flex-col gap-2 w-full">
-            <p className="text-lg font-semibold">Start Date</p>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                sx={{
-                  "& label.Mui-focused": {
-                    color: "#84cc16",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#84cc16",
-                    },
-                  },
-                }}
-                className="w-full bg-white"
-                label="Start Date"
-                renderInput={(params) => <TextField {...params} fullWidth />}
-              />
-            </LocalizationProvider>
-          </Box>
-          <Box className="flex flex-col gap-2 w-full">
-            <p className="text-lg font-semibold">End Date</p>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                sx={{
-                  "& label.Mui-focused": {
-                    color: "#84cc16",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#84cc16",
-                    },
-                  },
-                }}
-                className="w-full bg-white"
-                label="End Date"
-                renderInput={(params) => <TextField {...params} fullWidth />}
-              />
-            </LocalizationProvider>
-          </Box>
-        </Box>
-        <Box className="flex flex-col gap-2">
-          <p className="text-lg font-semibold">Funding Required</p>
-          <TextField
-            fullWidth
-            label="Funding Required"
-            variant="outlined"
-            required
-            className="bg-white"
-            sx={{
-              "& label.Mui-focused": {
-                color: "#84cc16",
-              },
-              "& .MuiOutlinedInput-root": {
-                "&.Mui-focused fieldset": {
-                  borderColor: "#84cc16",
-                },
-              },
-            }}
-          />
-        </Box>
-        <VideoUpload />
-        <ImageUpload />
+      <BasicInfoSection />
+
+      <UploadDocumentsSections />
+      <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
+        <p className="text-xl font-bold">Tell Us About Your Team Members </p>
+        <p className="font-extralight text-sm">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident
+          asperiores iste laboriosam commodi labore quibusdam unde nesciunt
+          nobis quas cumque consectetur pariatur, odit reiciendis vitae.
+        </p>
+        <Button
+          onClick={() => setOpenModal(true)}
+          variant="contained"
+          startIcon={<IoMdAdd />}
+          sx={{
+            textTransform: "none",
+            backgroundColor: "#84cc16",
+            color: "white",
+            padding: "12px",
+            width: "100%",
+            borderRadius: "10px",
+            "&:hover": {
+              backgroundColor: "#6aa40f",
+            },
+          }}
+        >
+          Add Team Members
+        </Button>
       </Box>
+      <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
+        <p className="text-xl font-bold">Tell Us about Your Backers </p>
+        <p className="font-extralight text-sm">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident
+          asperiores iste laboriosam commodi labore quibusdam unde nesciunt
+          nobis quas cumque consectetur pariatur, odit reiciendis vitae.
+        </p>
+        <Button
+          onClick={() => setOpenModal(true)}
+          variant="contained"
+          startIcon={<IoMdAdd />}
+          sx={{
+            textTransform: "none",
+            backgroundColor: "#84cc16",
+            color: "white",
+            padding: "12px",
+            width: "100%",
+            borderRadius: "10px",
+            "&:hover": {
+              backgroundColor: "#6aa40f",
+            },
+          }}
+        >
+          Add Backers
+        </Button>
+      </Box>
+      <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
+        <p className="text-xl font-bold">Add Faqs </p>
+        <p className="font-extralight text-sm">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident
+          asperiores iste laboriosam commodi labore quibusdam unde nesciunt
+          nobis quas cumque consectetur pariatur, odit reiciendis vitae.
+        </p>
+        <Button
+          onClick={() => setOpenModal(true)}
+          variant="contained"
+          startIcon={<IoMdAdd />}
+          sx={{
+            textTransform: "none",
+            backgroundColor: "#84cc16",
+            color: "white",
+            padding: "12px",
+            width: "100%",
+            borderRadius: "10px",
+            "&:hover": {
+              backgroundColor: "#6aa40f",
+            },
+          }}
+        >
+          Add Faqs
+        </Button>
+      </Box>
+      <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
+        <p className="text-xl font-bold">What is Your Project TimeLine</p>
+        <p className="font-extralight text-sm">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident
+          asperiores iste laboriosam commodi labore quibusdam unde nesciunt
+          nobis quas cumque consectetur pariatur, odit reiciendis vitae.
+        </p>
+        <Button
+          onClick={() => setOpenModal(true)}
+          variant="contained"
+          startIcon={<IoMdAdd />}
+          sx={{
+            textTransform: "none",
+            backgroundColor: "#84cc16",
+            color: "white",
+            padding: "12px",
+            width: "100%",
+            borderRadius: "10px",
+            "&:hover": {
+              backgroundColor: "#6aa40f",
+            },
+          }}
+        >
+          Add Project TimeLine
+        </Button>
+      </Box>
+      <RewardSection />
+
       <Box className="flex flex-col mt-10 gap-6">
         <Box className="flex flex-col gap-3">
           <p className="text-3xl font-bold">Tell us about your team members</p>

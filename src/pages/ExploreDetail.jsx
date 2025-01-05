@@ -96,6 +96,88 @@ export default function Page() {
 
       <ProjectTimeline timeline={timeline} />
 
+      <Box component={"section"}>
+        <Box className="container mx-auto px-6 text-center">
+          <h2 className="text-4xl font-extrabold text-gray-800 mb-12">
+            Rewards You Can Claim
+          </h2>
+          <p className="text-lg text-gray-600 mb-16 max-w-2xl mx-auto">
+            Support our project and unlock exclusive rewards as a thank you for
+            your contribution.
+          </p>
+          <Box className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {[
+              {
+                name: "Supporter Pack",
+                price: 25,
+                features: [
+                  "Exclusive Project Sticker",
+                  "Thank You Email",
+                  "Early Access to Updates",
+                ],
+              },
+              {
+                name: "Collector's Edition",
+                price: 75,
+                features: [
+                  "Custom T-Shirt",
+                  "Limited Edition Poster",
+                  "Your Name on Supporter Wall",
+                  "Access to Behind-the-Scenes Content",
+                ],
+              },
+              {
+                name: "Ultimate Backer",
+                price: 150,
+                features: [
+                  "Exclusive Signed Merchandise",
+                  "Virtual Meet & Greet",
+                  "Beta Access to Product",
+                  "Recognition in Project Credits",
+                  "Invitation to Launch Event",
+                ],
+              },
+            ].map((reward, index) => (
+              <Box
+                key={index}
+                className="bg-white rounded-lg shadow-lg hover:shadow-xl p-8 transform hover:-translate-y-2 transition-all duration-300"
+              >
+                <h3 className="text-3xl font-semibold text-gray-800 mb-4">
+                  {reward.name}
+                </h3>
+                <p className="text-5xl font-bold text_primary mb-6">
+                  ${reward.price}
+                </p>
+                <ul className="text-left space-y-3 mb-8">
+                  {reward.features.map((feature, i) => (
+                    <li key={i} className="flex items-center">
+                      <svg
+                        className="w-6 h-6 text_primary mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <button className="w-full bg_primary hover:bg_primary text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out">
+                  Claim Reward
+                </button>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Box>
+
       <Box className="p-10 text-center">
         <p className="text-3xl mb-4 font-bold">Ready to make a difference?</p>
         <Button
