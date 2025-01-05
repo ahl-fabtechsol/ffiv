@@ -23,6 +23,7 @@ import RewardSection from "../../../components/RewardSection";
 import BasicModal from "../../../modals/BasicModal";
 import BasicInfoSection from "./BasicInfoSection";
 import UploadDocumentsSections from "./UploadDocumentsSections";
+import TeamMembersSection from "./TeamMembersSection";
 
 const CreateCampaign = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -180,32 +181,7 @@ const CreateCampaign = () => {
       <BasicInfoSection />
 
       <UploadDocumentsSections />
-      <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
-        <p className="text-xl font-bold">Tell Us About Your Team Members </p>
-        <p className="font-extralight text-sm">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident
-          asperiores iste laboriosam commodi labore quibusdam unde nesciunt
-          nobis quas cumque consectetur pariatur, odit reiciendis vitae.
-        </p>
-        <Button
-          onClick={() => setOpenModal(true)}
-          variant="contained"
-          startIcon={<IoMdAdd />}
-          sx={{
-            textTransform: "none",
-            backgroundColor: "#84cc16",
-            color: "white",
-            padding: "12px",
-            width: "100%",
-            borderRadius: "10px",
-            "&:hover": {
-              backgroundColor: "#6aa40f",
-            },
-          }}
-        >
-          Add Team Members
-        </Button>
-      </Box>
+      <TeamMembersSection />
       <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
         <p className="text-xl font-bold">Tell Us about Your Backers </p>
         <p className="font-extralight text-sm">
