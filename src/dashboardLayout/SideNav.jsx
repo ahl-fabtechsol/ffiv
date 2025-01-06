@@ -5,7 +5,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import { buttonStyle, listItemStyle } from "./SideNavStyles";
 import { AiOutlineAppstore } from "react-icons/ai";
@@ -50,8 +50,42 @@ const listItemData = [
   },
 ];
 
+const adminListItemData = [
+  {
+    label: "Dashboard",
+    name: "dashboard",
+    link: `/admin/dashboard`,
+    icon: <AiOutlineAppstore className="text-xl" />,
+  },
+  {
+    label: "All Campaigns",
+    name: "campaigns",
+    link: `/admin/campaigns`,
+    icon: <FaClipboardList className="text-xl" />,
+  },
+  {
+    label: "Users",
+    name: "users",
+    link: `/admin/users`,
+    icon: <FaFlag className="text-xl" />,
+  },
+  {
+    label: "Notifications",
+    name: "notifications",
+    link: `/admin/notifications`,
+    icon: <IoMdNotificationsOutline className="text-xl" />,
+  },
+  {
+    label: "Messages",
+    name: "messages",
+    link: `/admin/messages`,
+    icon: <FaAddressBook className="text-xl" />,
+  },
+];
+
 function SideNav(props) {
   const { window } = props;
+  const navigate = useNavigate();
   const drawer = (
     <div className="rounded-lg">
       <div className="px-3 bg-white h-screen rounded-2xl">
@@ -65,23 +99,43 @@ function SideNav(props) {
             />
           </div>
           <div className="overflow-y-auto flex-grow">
-            <List>
-              {listItemData?.map((value, i) => (
-                <div key={i} className="py-1">
-                  <div className="bg-white text-gray-600">
-                    <RenderItem
-                      value={value}
-                      i={i}
-                      className="text-black rounded-lg"
-                    />
+            {props.type === "user" ? (
+              <List>
+                {listItemData?.map((value, i) => (
+                  <div key={i} className="py-1">
+                    <div className="bg-white text-gray-600">
+                      <RenderItem
+                        value={value}
+                        i={i}
+                        className="text-black rounded-lg"
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
-            </List>
+                ))}
+              </List>
+            ) : (
+              <List>
+                {adminListItemData?.map((value, i) => (
+                  <div key={i} className="py-1">
+                    <div className="bg-white text-gray-600">
+                      <RenderItem
+                        value={value}
+                        i={i}
+                        className="text-black rounded-lg"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </List>
+            )}
           </div>
           <div>
             <List className="mx-4 mt-3 bg-white border border-black rounded-lg">
-              <ListItem disablePadding className="cursor-pointer">
+              <ListItem
+                disablePadding
+                className="cursor-pointer"
+                onClick={() => navigate("/")}
+              >
                 <ListItemText>
                   <Typography
                     className="font-bold flex gap-3 px-3 items-center"
