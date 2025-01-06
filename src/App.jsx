@@ -14,6 +14,11 @@ import Messages from "./pages/user/Messages";
 import Notifications from "./pages/user/Notifications";
 import CreateCampaign from "./pages/user/createCampaign/CreateCampaign";
 import UserCampaign from "./pages/user/UserCampaign";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAllCampaigns from "./pages/admin/AdminAllCampaigns";
+import AdminNotifications from "./pages/admin/AdminNotifications";
+import AdminMessages from "./pages/admin/AdminMessages";
 
 const App = () => {
   return (
@@ -36,6 +41,13 @@ const App = () => {
         <Route path="/user/notifications" element={<Notifications />} />
         <Route path="/user/create-campaign" element={<CreateCampaign />} />
         <Route path="/user/all-campaign" element={<UserCampaign />} />
+      </Route>
+      <Route element={<Dashboardnav type="admin" />}>
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/campaigns" element={<AdminAllCampaigns />} />
+        <Route path="/admin/notifications" element={<AdminNotifications />} />
+        <Route path="/admin/messages" element={<AdminMessages />} />
       </Route>
     </Routes>
   );
