@@ -1,44 +1,61 @@
-import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import React, { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import BasicInfoActionModal from "../../../modals/BasicInfoActionModal";
-import dayjs from "dayjs";
+import { Loader } from "../../../components/customLoader/Loader";
+import toast from "react-hot-toast";
+import apiClient from "../../../api/apiClient";
 
 const BasicInfoSection = (props) => {
   const { setCampaignId } = props;
+  const [loading, setLoading] = useState(false);
   const [basicInfoActionModal, setBasicInfoActionModal] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    subCategory: "",
-    shortSummary: "",
-    detail: "",
-    startDate: dayjs(),
-    endDate: dayjs(),
-    funding: "",
-  });
-
-  const dateFormatter = new Intl.DateTimeFormat("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const [modalType, setModalType] = useState("");
+  const [formData, setFormData] = useState(null);
 
   const handleOnSave = (values) => {
     setBasicInfoActionModal(false);
-    setFormData(values);
     setCampaignId(values?._id);
+    getCampaignData(values?._id);
   };
+
+  const getCampaignData = async (id) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get(`campaign/${id}`);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Something went wrong");
+        return;
+      }
+      setLoading(false);
+      setFormData(response?.data?.campaign);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const handleAdd = () => {
+    setModalType("add");
+    setBasicInfoActionModal(true);
+  };
+
+  const handleEdit = () => {
+    setModalType("edit");
+    setBasicInfoActionModal(true);
+  };
+
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
+      <Loader loading={loading} />
       {basicInfoActionModal && (
         <BasicInfoActionModal
           open={basicInfoActionModal}
           onClose={() => setBasicInfoActionModal(false)}
           onSave={handleOnSave}
-          formData={formData}
-          setFormData={setFormData}
+          data={formData}
+          type={modalType}
         />
       )}
       <p className="text-xl font-bold">Add Basic Info </p>
@@ -48,12 +65,12 @@ const BasicInfoSection = (props) => {
         quas cumque consectetur pariatur, odit reiciendis vitae.
       </p>
 
-      {formData.campaignName && (
+      {formData && (
         <Box className="flex flex-wrap gap-6 justify-between">
           <Box className="w-full sm:w-[48%] p-4 rounded-lg border">
             <Box className="mb-4">
               <p className="text-md font-bold text-fdPrimary">Campaign Name</p>
-              <p className="text-sm font-extralight">{formData.campaignName}</p>
+              <p className="text-sm font-extralight">{formData?.name}</p>
             </Box>
           </Box>
 
@@ -61,7 +78,7 @@ const BasicInfoSection = (props) => {
             <Box className="mb-4">
               <p className="text-md font-bold text-fdPrimary">Category</p>
               <p className="text-sm font-extralight">
-                {formData.category || "Not Specified"}
+                {formData?.category || "Not Specified"}
               </p>
             </Box>
           </Box>
@@ -70,7 +87,7 @@ const BasicInfoSection = (props) => {
             <Box className="mb-4">
               <p className="text-md font-bold text-fdPrimary">Subcategory</p>
               <p className="text-sm font-extralight">
-                {formData.subCategory || "Not Specified"}
+                {formData?.subCategory || "Not Specified"}
               </p>
             </Box>
           </Box>
@@ -81,7 +98,18 @@ const BasicInfoSection = (props) => {
                 Campaign Summary
               </p>
               <p className="text-sm font-extralight">
-                {formData.campaignSummary || "Not Provided"}
+                {formData?.shortSummary || "Not Provided"}
+              </p>
+            </Box>
+          </Box>
+
+          <Box className="w-full sm:w-[48%] p-4 rounded-lg border">
+            <Box className="mb-4">
+              <p className="text-md font-bold text-fdPrimary">
+                Campaign Detail
+              </p>
+              <p className="text-sm font-extralight">
+                {formData?.detail || "Not Provided"}
               </p>
             </Box>
           </Box>
@@ -90,7 +118,8 @@ const BasicInfoSection = (props) => {
             <Box className="mb-4">
               <p className="text-md font-bold text-fdPrimary">Start Date</p>
               <p className="text-sm font-extralight">
-                {dateFormatter.format(formData.startDate) || "Not Provided"}
+                {new Date(formData?.startDate).toLocaleDateString() ||
+                  "Not Provided"}
               </p>
             </Box>
           </Box>
@@ -99,7 +128,8 @@ const BasicInfoSection = (props) => {
             <Box className="mb-4">
               <p className="text-md font-bold text-fdPrimary">End Date</p>
               <p className="text-sm font-extralight">
-                {dateFormatter.format(formData.endDate) || "Not Provided"}
+                {new Date(formData?.endDate).toLocaleDateString() ||
+                  "Not Provided"}
               </p>
             </Box>
           </Box>
@@ -110,14 +140,14 @@ const BasicInfoSection = (props) => {
                 Funding Required
               </p>
               <p className="text-sm font-extralight">
-                {formData.fundingRequired || "Not Provided"}
+                {formData?.funding || "Not Provided"}
               </p>
             </Box>
           </Box>
         </Box>
       )}
       <Button
-        onClick={() => setBasicInfoActionModal(true)}
+        onClick={() => (formData ? handleEdit() : handleAdd())}
         variant="contained"
         startIcon={<IoMdAdd />}
         sx={{
@@ -132,7 +162,7 @@ const BasicInfoSection = (props) => {
           },
         }}
       >
-        {formData.campaignName ? "Edit Basic Info" : "Add Basic Info"}
+        {formData ? "Edit Basic Info" : "Add Basic Info"}
       </Button>
     </Box>
   );

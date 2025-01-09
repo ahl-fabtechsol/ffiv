@@ -8,7 +8,7 @@ import ProjectTimeLineSection from "./ProjectTimeLineSection";
 import RewardSection from "./RewardSection";
 
 const CreateCampaign = () => {
-  const [campaignId, setCampaignId] = useState("454");
+  const [campaignId, setCampaignId] = useState(null);
   return (
     <Box className="p-8 flex flex-col gap-8">
       <Box className="flex flex-col gap-3">

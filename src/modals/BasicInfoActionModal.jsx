@@ -51,6 +51,7 @@ const style = {
 };
 
 const BasicInfoActionModal = (props) => {
+  const { type, data } = props;
   const [loading, setLoading] = useState(false);
   const handleSave = (values) => {
     props.onSave(values);
@@ -85,6 +86,24 @@ const BasicInfoActionModal = (props) => {
     }
   };
 
+  const handleEdit = async (values) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.patch(`campaign/${data?._id}`, values);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Failed to save basic info");
+        return;
+      }
+      setLoading(false);
+      toast.success("Basic info saved successfully");
+      handleSave(response?.data?.campaign);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Failed to save basic info");
+    }
+  };
+
   return (
     <Modal
       open={props.open}
@@ -95,7 +114,9 @@ const BasicInfoActionModal = (props) => {
       <Box sx={style}>
         <Loader loading={loading} />
         <Box className="flex justify-between items-center">
-          <p className="text-xl font-bold">Add Basic Info</p>
+          <p className="text-xl font-bold">
+            {type === "edit" ? "Edit" : "Add"} Basic Info
+          </p>
 
           <IconButton onClick={props.onClose}>
             <MdCancel size={25} color="black" />
@@ -103,17 +124,27 @@ const BasicInfoActionModal = (props) => {
         </Box>
         <Formik
           initialValues={{
-            name: "",
-            category: "",
-            subCategory: "",
-            shortSummary: "",
-            detail: "",
-            startDate: dayjs(),
-            endDate: dayjs().add(1, "day"),
-            funding: "",
+            name: type === "edit" ? data?.name : "",
+            category: type === "edit" ? data?.category : "",
+            subCategory: type === "edit" ? data?.subCategory : "",
+            shortSummary: type === "edit" ? data?.shortSummary : "",
+            detail: type === "edit" ? data?.detail : "",
+            startDate:
+              type === "edit"
+                ? dayjs(data?.startDate).isValid()
+                  ? dayjs(data?.startDate)
+                  : dayjs()
+                : dayjs(),
+            endDate:
+              type === "edit"
+                ? dayjs(data?.endDate).isValid()
+                  ? dayjs(data?.endDate)
+                  : dayjs()
+                : dayjs().add(1, "day"),
+            funding: type === "edit" ? data?.funding : "",
           }}
           validationSchema={validationSchema}
-          onSubmit={handleSubmit}
+          onSubmit={type === "edit" ? handleEdit : handleSubmit}
         >
           {({ values, errors, handleChange, setFieldValue, handleBlur }) => (
             <Form>

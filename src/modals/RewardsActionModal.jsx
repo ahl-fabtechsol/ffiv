@@ -2,8 +2,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import { IconButton, TextField } from "@mui/material";
-import { MdCancel, MdDelete } from "react-icons/md";
-import { IoMdAdd } from "react-icons/io";
+import { MdCancel } from "react-icons/md";
 import { Loader } from "../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../api/apiClient";
@@ -47,7 +46,7 @@ const RewardsActionModal = (props) => {
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required("Title is Required"),
-    features: Yup.string().required("Features is Required"),
+    features: Yup.mixed().required("Features is Required"),
     price: Yup.string().required("Price is Required"),
   });
 
