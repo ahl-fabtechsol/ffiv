@@ -20,3 +20,7 @@
 .text_primary {
   color: #84cc16 !important;
 }
+
+#__react-hot-toast {
+  z-index: 100000 !important;
+}
