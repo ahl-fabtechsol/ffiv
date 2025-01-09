@@ -74,7 +74,7 @@ const BasicInfoActionModal = (props) => {
       const response = await apiClient.post("campaign", values);
       if (!response.ok) {
         setLoading(false);
-        toast.error("Failed to save basic info");
+        toast.error(response?.data?.message || "Failed to save basic info");
         return;
       }
       setLoading(false);

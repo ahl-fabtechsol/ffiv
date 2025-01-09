@@ -7,7 +7,7 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import imageCompression from "browser-image-compression";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader } from "../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../api/apiClient";
@@ -43,7 +43,8 @@ const style = {
 };
 
 const TeamMembersActionModal = (props) => {
-  const { campaignId } = props;
+  const { campaignId, type, data } = props;
+  const [previewUrl, setPreviewUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const compressImage = async (imageFile) => {
     const options = {
@@ -68,6 +69,8 @@ const TeamMembersActionModal = (props) => {
     const file = event.target.files[0];
     const compressedFile = await compressImage(file);
     setFieldValue("image", compressedFile);
+    const preview = URL.createObjectURL(compressedFile);
+    setPreviewUrl(preview);
   };
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
@@ -107,6 +110,52 @@ const TeamMembersActionModal = (props) => {
       toast.error("Failed to add team member");
     }
   };
+
+  const handleEdit = async (values) => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      for (let key in values) {
+        if (key === "image") {
+          if (values.image) {
+            formData.append(key, values[key]);
+          }
+        } else {
+          formData.append(key, values[key]);
+        }
+      }
+      formData.append("campaignId", campaignId);
+      const response = await apiClient.patch(
+        `team-member/${data?._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (!response.ok) {
+        setLoading(false);
+        return toast.error(
+          response?.data?.message || "Failed to update team member"
+        );
+      }
+      setLoading(false);
+      toast.success("Team member updated successfully");
+      props.onAction();
+      props.onClose();
+    } catch (error) {
+      setLoading(false);
+      toast.error("Failed to update team member");
+    }
+  };
+
+  useEffect(() => {
+    if (type === "edit") {
+      setPreviewUrl(data?.image);
+    }
+  }, [type, data]);
+
   return (
     <Modal
       open={props.open}
@@ -117,7 +166,9 @@ const TeamMembersActionModal = (props) => {
       <Box sx={style}>
         <Loader loading={loading} />
         <Box className="flex justify-between items-center">
-          <p className="text-xl font-bold">Add Team Members</p>
+          <p className="text-xl font-bold">
+            {type === "edit" ? "Edit" : "Add"} Team Members
+          </p>
 
           <IconButton onClick={props.onClose}>
             <MdCancel size={25} color="black" />
@@ -125,13 +176,13 @@ const TeamMembersActionModal = (props) => {
         </Box>
         <Formik
           initialValues={{
-            name: "",
-            role: "",
-            email: "",
+            name: type === "edit" ? data?.name : "",
+            role: type === "edit" ? data?.role : "",
+            email: type === "edit" ? data?.email : "",
             image: null,
           }}
           validationSchema={validationSchema}
-          onSubmit={handleSubmit}
+          onSubmit={type === "edit" ? handleEdit : handleSubmit}
         >
           {({ values, handleChange, handleBlur, errors, setFieldValue }) => (
             <Form>
@@ -146,9 +197,7 @@ const TeamMembersActionModal = (props) => {
                 <Box className="flex flex-col gap-6 p-6 border rounded-xl bg-white my-3">
                   <Box className="flex xs:flex-row flex-col items-center gap-6">
                     <Avatar
-                      src={
-                        values.image ? URL.createObjectURL(values.image) : ""
-                      }
+                      src={previewUrl}
                       sx={{
                         width: 100,
                         height: 100,
