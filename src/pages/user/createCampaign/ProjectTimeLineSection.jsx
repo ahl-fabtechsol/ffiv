@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import ProjectTimeLineActionModal from "../../../modals/ProjectTimeLineActionModal";
 
-const ProjectTimeLineSection = () => {
+const ProjectTimeLineSection = (props) => {
+  const { campaignId } = props;
+  const [onAction, setOnAction] = useState(false);
   const [phases, setPhases] = useState([
     { id: Date.now(), phaseName: "", completionDetails: "" },
   ]);
@@ -19,9 +21,8 @@ const ProjectTimeLineSection = () => {
         <ProjectTimeLineActionModal
           open={projectTimeLineActionModal}
           onClose={() => setProjectTimeLineActionModal(false)}
-          onSave={handleOnSave}
-          phases={phases}
-          setPhases={setPhases}
+          onAction={() => setOnAction(!onAction)}
+          campaignId={campaignId}
         />
       )}
       <p className="text-xl font-bold">What is Your Project TimeLine</p>

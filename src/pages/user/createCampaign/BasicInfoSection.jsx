@@ -4,17 +4,18 @@ import { IoMdAdd } from "react-icons/io";
 import BasicInfoActionModal from "../../../modals/BasicInfoActionModal";
 import dayjs from "dayjs";
 
-const BasicInfoSection = () => {
+const BasicInfoSection = (props) => {
+  const { setCampaignId } = props;
   const [basicInfoActionModal, setBasicInfoActionModal] = useState(false);
   const [formData, setFormData] = useState({
-    campaignName: "",
+    name: "",
     category: "",
     subCategory: "",
-    campaignSummary: "",
-    campaignDetail: "",
+    shortSummary: "",
+    detail: "",
     startDate: dayjs(),
     endDate: dayjs(),
-    fundingRequired: "",
+    funding: "",
   });
 
   const dateFormatter = new Intl.DateTimeFormat("en-US", {
@@ -24,8 +25,10 @@ const BasicInfoSection = () => {
     day: "numeric",
   });
 
-  const handleOnSave = () => {
+  const handleOnSave = (values) => {
     setBasicInfoActionModal(false);
+    setFormData(values);
+    setCampaignId(values?._id);
   };
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">

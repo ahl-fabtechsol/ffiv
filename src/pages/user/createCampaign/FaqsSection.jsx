@@ -3,23 +3,22 @@ import React, { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import FaqsActionModal from "../../../modals/FaqsActionModal";
 
-const FaqsSection = () => {
+const FaqsSection = (props) => {
+  const { campaignId } = props;
+  const [onAction, setOnAction] = useState(false);
   const [faqs, setFaqs] = useState([
     { id: Date.now(), question: "", answer: "" },
   ]);
   const [faqsActionModal, setFaqsActionModal] = useState(false);
-  const handleOnSave = () => {
-    setFaqsActionModal(false);
-  };
+
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
       {faqsActionModal && (
         <FaqsActionModal
           open={faqsActionModal}
           onClose={() => setFaqsActionModal(false)}
-          onSave={handleOnSave}
-          faqs={faqs}
-          setFaqs={setFaqs}
+          onAction={() => setOnAction(!onAction)}
+          campaignId={campaignId}
         />
       )}
       <p className="text-xl font-bold">Add Faqs </p>

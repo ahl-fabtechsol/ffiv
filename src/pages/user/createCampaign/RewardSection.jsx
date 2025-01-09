@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import RewardsActionModal from "../../../modals/RewardsActionModal";
 
-const RewardSection = () => {
+const RewardSection = (props) => {
+  const { campaignId } = props;
+  const [onAction, setOnAction] = useState(false);
   const [rewards, setRewards] = useState([
     {
       id: Date.now(),
@@ -13,18 +15,15 @@ const RewardSection = () => {
     },
   ]);
   const [rewardsActionModal, setRewardsActionModal] = useState(false);
-  const handleOnSave = () => {
-    setRewardsActionModal(false);
-  };
+
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
       {rewardsActionModal && (
         <RewardsActionModal
           open={rewardsActionModal}
           onClose={() => setRewardsActionModal(false)}
-          onSave={handleOnSave}
-          rewards={rewards}
-          setRewards={setRewards}
+          onAction={() => setOnAction(!onAction)}
+          campaignId={campaignId}
         />
       )}
       <p className="text-xl font-bold">Add Rewards for Peoples </p>

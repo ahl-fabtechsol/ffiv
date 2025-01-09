@@ -1,25 +1,24 @@
-import { Avatar, Box, Button } from "@mui/material";
+import { Avatar, Box, Button, IconButton } from "@mui/material";
 import React, { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import TeamMembersActionModal from "../../../modals/TeamMembersActionModal";
+import { MdDelete } from "react-icons/md";
 
-const TeamMembersSection = () => {
+const TeamMembersSection = (props) => {
+  const { campaignId } = props;
   const [teamMembersActionModal, setTeamMembersActionModal] = useState(false);
+  const [onAction, setOnAction] = useState(false);
   const [teamMembers, setTeamMembers] = useState([
     { id: Date.now(), name: "", role: "", picture: null },
   ]);
-  const handleOnSave = () => {
-    setTeamMembersActionModal(false);
-  };
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
       {teamMembersActionModal && (
         <TeamMembersActionModal
           open={teamMembersActionModal}
           onClose={() => setTeamMembersActionModal(false)}
-          onSave={handleOnSave}
-          teamMembers={teamMembers}
-          setTeamMembers={setTeamMembers}
+          onAction={() => setOnAction(!onAction)}
+          campaignId={campaignId}
         />
       )}
       <p className="text-xl font-bold">Tell Us About Your Team Members </p>
@@ -33,7 +32,7 @@ const TeamMembersSection = () => {
           (member, index) =>
             member.name && (
               <Box
-                className="col-span-1 rounded-lg border p-4 flex gap-3 items-center flex-wrap"
+                className="col-span-1 rounded-lg border p-4 flex gap-3 items-center xs:flex-row flex-col"
                 key={member.id}
               >
                 <Avatar
@@ -42,9 +41,14 @@ const TeamMembersSection = () => {
                   }
                   sx={{ width: 70, height: 70, border: "3px solid #84cc16" }}
                 />
-                <Box>
-                  <p className="text-md font-bold">{member?.name}</p>
-                  <p className="font-extralight text-sm">{member?.role}</p>
+                <Box className="flex gap-2">
+                  <Box>
+                    <p className="text-md font-bold">{member?.name}</p>
+                    <p className="font-extralight text-sm">{member?.role}</p>
+                  </Box>
+                  <IconButton color="error">
+                    <MdDelete />
+                  </IconButton>
                 </Box>
               </Box>
             )

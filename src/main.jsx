@@ -4,11 +4,15 @@ import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import { Toaster } from "react-hot-toast";
+import { Provider } from "react-redux";
+import { store } from "./redux/store.js";
 
 createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <Toaster position="top-center" containerStyle={{ zIndex: 100000 }} />
-    <ScrollToTop />
-    <App />
-  </BrowserRouter>
+  <Provider store={store}>
+    <BrowserRouter>
+      <Toaster position="top-center" containerStyle={{ zIndex: 100000 }} />
+      <ScrollToTop />
+      <App />
+    </BrowserRouter>
+  </Provider>
 );

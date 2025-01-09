@@ -1,4 +1,3 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
@@ -13,6 +12,13 @@ import {
 import { MdCancel } from "react-icons/md";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Formik, Form, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import dayjs from "dayjs";
+import { useState } from "react";
+import { Loader } from "../components/customLoader/Loader";
+import toast from "react-hot-toast";
+import apiClient from "../api/apiClient";
 
 const style = {
   position: "absolute",
@@ -45,26 +51,40 @@ const style = {
 };
 
 const BasicInfoActionModal = (props) => {
-  const { formData, setFormData } = props;
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const [loading, setLoading] = useState(false);
+  const handleSave = (values) => {
+    props.onSave(values);
   };
 
-  const handleDateChange = (date, name) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: date,
-    }));
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required("Campaign Name is required"),
+    category: Yup.string().required("Category is required"),
+    subCategory: Yup.string().required("Sub Category is required"),
+    shortSummary: Yup.string().required("Campaign Short Summary is required"),
+    detail: Yup.string().required("Campaign Detail is required"),
+    startDate: Yup.string().required("Start Date is required"),
+    endDate: Yup.string().required("End Date is required"),
+    funding: Yup.string().required("Funding Required is required"),
+  });
+
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.post("campaign", values);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error("Failed to save basic info");
+        return;
+      }
+      setLoading(false);
+      toast.success("Basic info saved successfully");
+      handleSave(response?.data?.campaign);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Failed to save basic info");
+    }
   };
 
-  const handleSave = () => {
-    props.onSave();
-  };
   return (
     <Modal
       open={props.open}
@@ -73,6 +93,7 @@ const BasicInfoActionModal = (props) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
+        <Loader loading={loading} />
         <Box className="flex justify-between items-center">
           <p className="text-xl font-bold">Add Basic Info</p>
 
@@ -80,251 +101,306 @@ const BasicInfoActionModal = (props) => {
             <MdCancel size={25} color="black" />
           </IconButton>
         </Box>
-        <Box className="my-10 flex flex-col gap-6">
-          <Box className="flex flex-col gap-2">
-            <p className="text-lg font-semibold">Campaign Name</p>
-            <TextField
-              fullWidth
-              label="Campaign Name"
-              value={formData.campaignName}
-              name="campaignName"
-              onChange={handleChange}
-              variant="outlined"
-              required
-              className="bg-white"
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-          </Box>
-          <Box className="flex sm:flex-row flex-col gap-6 ">
-            <Box className="flex flex-col w-full">
-              <p className="text-lg font-semibold">Category</p>
-              <FormControl
-                fullWidth
-                sx={{
-                  "& label.Mui-focused": {
-                    color: "#84cc16",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#84cc16",
-                    },
-                  },
-                }}
-              >
-                <InputLabel id="campign-category">Category</InputLabel>
-                <Select
-                  fullWidth
-                  value={formData.category}
-                  name="category"
-                  onChange={handleChange}
-                  className=" bg-white"
-                  labelId="campaign-category"
-                  label="Category"
-                >
-                  <MenuItem value={10}>Ten</MenuItem>
-                  <MenuItem value={20}>Twenty</MenuItem>
-                  <MenuItem value={30}>Thirty</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Box className="flex flex-col w-full">
-              <p className="text-lg font-semibold">Sub Category</p>
-              <FormControl
-                fullWidth
-                sx={{
-                  "& label.Mui-focused": {
-                    color: "#84cc16",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#84cc16",
-                    },
-                  },
-                }}
-              >
-                <InputLabel id="campign-subCategory">Sub Category</InputLabel>
-                <Select
-                  value={formData.subCategory}
-                  name="subCategory"
-                  onChange={handleChange}
-                  fullWidth
-                  className=" bg-white"
-                  labelId="campaign-subCategory"
-                  label="Sub Category"
-                >
-                  <MenuItem value={10}>Ten</MenuItem>
-                  <MenuItem value={20}>Twenty</MenuItem>
-                  <MenuItem value={30}>Thirty</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-          </Box>
-          <Box className="flex flex-col gap-2">
-            <p className="text-lg font-semibold">Campaign Short Summary</p>
-            <TextField
-              fullWidth
-              value={formData.campaignSummary}
-              name="campaignSummary"
-              onChange={handleChange}
-              label="Write a short detail"
-              variant="outlined"
-              required
-              className="bg-white"
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-          </Box>
-          <Box className="flex flex-col gap-2">
-            <p className="text-lg font-semibold">Campaign Detail</p>
-            <TextField
-              rows={6}
-              multiline
-              value={formData.campaignDetail}
-              name="campaignDetail"
-              onChange={handleChange}
-              fullWidth
-              label="Write a short detail"
-              variant="outlined"
-              required
-              className="bg-white"
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-          </Box>
-          <Box className="flex sm:flex-row flex-col gap-6 ">
-            <Box className="flex flex-col gap-2 w-full">
-              <p className="text-lg font-semibold">Start Date</p>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  value={formData.startDate}
-                  name="startDate"
-                  onChange={(date) => handleDateChange(date, "startDate")}
-                  sx={{
-                    "& label.Mui-focused": {
-                      color: "#84cc16",
-                    },
-                    "& .MuiOutlinedInput-root": {
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#84cc16",
+        <Formik
+          initialValues={{
+            name: "",
+            category: "",
+            subCategory: "",
+            shortSummary: "",
+            detail: "",
+            startDate: dayjs(),
+            endDate: dayjs().add(1, "day"),
+            funding: "",
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ values, errors, handleChange, setFieldValue, handleBlur }) => (
+            <Form>
+              <Box className="my-10 flex flex-col gap-6">
+                <Box className="flex flex-col gap-2">
+                  <p className="text-lg font-semibold">Campaign Name</p>
+                  <TextField
+                    fullWidth
+                    label="Campaign Name"
+                    name="name"
+                    value={values.name}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.name ? true : false}
+                    helperText={errors.name}
+                    variant="outlined"
+                    required
+                    className="bg-white"
+                    sx={{
+                      "& label.Mui-focused": {
+                        color: "#84cc16",
                       },
-                    },
-                  }}
-                  className="w-full bg-white"
-                  label="Start Date"
-                  renderInput={(params) => <TextField {...params} fullWidth />}
-                />
-              </LocalizationProvider>
-            </Box>
-            <Box className="flex flex-col gap-2 w-full">
-              <p className="text-lg font-semibold">End Date</p>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  value={formData.endDate}
-                  name="endDate"
-                  onChange={(date) => handleDateChange(date, "endDate")}
-                  sx={{
-                    "& label.Mui-focused": {
-                      color: "#84cc16",
-                    },
-                    "& .MuiOutlinedInput-root": {
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#84cc16",
+                      "& .MuiOutlinedInput-root": {
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#84cc16",
+                        },
                       },
-                    },
-                  }}
-                  className="w-full bg-white"
-                  label="End Date"
-                  renderInput={(params) => <TextField {...params} fullWidth />}
-                />
-              </LocalizationProvider>
-            </Box>
-          </Box>
-          <Box className="flex flex-col gap-2">
-            <p className="text-lg font-semibold">Funding Required</p>
-            <TextField
-              value={formData.fundingRequired}
-              name="fundingRequired"
-              onChange={handleChange}
-              fullWidth
-              label="Funding Required"
-              variant="outlined"
-              required
-              className="bg-white"
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-          </Box>
-          <Box className="flex justify-end gap-3 items-center">
-            <Button
-              onClick={props.onClose}
-              variant="contained"
-              sx={{
-                textTransform: "none",
-                backgroundColor: "#B0B0B0",
-                color: "white",
-                padding: "12px",
-                width: "100px",
-                borderRadius: "10px",
-                "&:hover": {
-                  backgroundColor: "#8C8C8C",
-                },
-              }}
-            >
-              Cancel
-            </Button>
+                    }}
+                  />
+                </Box>
+                <Box className="flex sm:flex-row flex-col gap-6 ">
+                  <Box className="flex flex-col w-full">
+                    <p className="text-lg font-semibold">Category</p>
+                    <FormControl
+                      fullWidth
+                      sx={{
+                        "& label.Mui-focused": {
+                          color: "#84cc16",
+                        },
+                        "& .MuiOutlinedInput-root": {
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#84cc16",
+                          },
+                        },
+                      }}
+                    >
+                      <InputLabel id="campign-category">Category</InputLabel>
+                      <Select
+                        fullWidth
+                        value={values.category}
+                        name="category"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.category ? true : false}
+                        helperText={errors.category}
+                        className=" bg-white"
+                        labelId="campaign-category"
+                        label="Category"
+                      >
+                        <MenuItem value={10}>Ten</MenuItem>
+                        <MenuItem value={20}>Twenty</MenuItem>
+                        <MenuItem value={30}>Thirty</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                  <Box className="flex flex-col w-full">
+                    <p className="text-lg font-semibold">Sub Category</p>
+                    <FormControl
+                      fullWidth
+                      sx={{
+                        "& label.Mui-focused": {
+                          color: "#84cc16",
+                        },
+                        "& .MuiOutlinedInput-root": {
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#84cc16",
+                          },
+                        },
+                      }}
+                    >
+                      <InputLabel id="campign-subCategory">
+                        Sub Category
+                      </InputLabel>
+                      <Select
+                        value={values.subCategory}
+                        name="subCategory"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.subCategory ? true : false}
+                        helperText={errors.subCategory}
+                        fullWidth
+                        className=" bg-white"
+                        labelId="campaign-subCategory"
+                        label="Sub Category"
+                      >
+                        <MenuItem value={10}>Ten</MenuItem>
+                        <MenuItem value={20}>Twenty</MenuItem>
+                        <MenuItem value={30}>Thirty</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Box>
+                <Box className="flex flex-col gap-2">
+                  <p className="text-lg font-semibold">
+                    Campaign Short Summary
+                  </p>
+                  <TextField
+                    fullWidth
+                    value={values.shortSummary}
+                    name="shortSummary"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.shortSummary ? true : false}
+                    helperText={errors.shortSummary}
+                    label="Write a short detail"
+                    variant="outlined"
+                    required
+                    className="bg-white"
+                    sx={{
+                      "& label.Mui-focused": {
+                        color: "#84cc16",
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#84cc16",
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+                <Box className="flex flex-col gap-2">
+                  <p className="text-lg font-semibold">Campaign Detail</p>
+                  <TextField
+                    rows={6}
+                    multiline
+                    value={values.detail}
+                    name="detail"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.detail ? true : false}
+                    helperText={errors.detail}
+                    fullWidth
+                    label="Write a short detail"
+                    variant="outlined"
+                    required
+                    className="bg-white"
+                    sx={{
+                      "& label.Mui-focused": {
+                        color: "#84cc16",
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#84cc16",
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+                <Box className="flex sm:flex-row flex-col gap-6 ">
+                  <Box className="flex flex-col gap-2 w-full">
+                    <p className="text-lg font-semibold">Start Date</p>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        value={values.startDate}
+                        name="startDate"
+                        onChange={(date) => setFieldValue("startDate", date)}
+                        sx={{
+                          "& label.Mui-focused": {
+                            color: "#84cc16",
+                          },
+                          "& .MuiOutlinedInput-root": {
+                            "&.Mui-focused fieldset": {
+                              borderColor: "#84cc16",
+                            },
+                          },
+                        }}
+                        className="w-full bg-white"
+                        label="Start Date"
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            fullWidth
+                            error={errors.startDate}
+                            helperText={errors.startDate}
+                          />
+                        )}
+                      />
+                    </LocalizationProvider>
+                  </Box>
+                  <Box className="flex flex-col gap-2 w-full">
+                    <p className="text-lg font-semibold">End Date</p>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        value={values.endDate}
+                        name="endDate"
+                        onChange={(date) => setFieldValue("endDate", date)}
+                        sx={{
+                          "& label.Mui-focused": {
+                            color: "#84cc16",
+                          },
+                          "& .MuiOutlinedInput-root": {
+                            "&.Mui-focused fieldset": {
+                              borderColor: "#84cc16",
+                            },
+                          },
+                        }}
+                        className="w-full bg-white"
+                        label="End Date"
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            fullWidth
+                            error={errors.endDate}
+                            helperText={errors.endDate}
+                          />
+                        )}
+                      />
+                    </LocalizationProvider>
+                  </Box>
+                </Box>
+                <Box className="flex flex-col gap-2">
+                  <p className="text-lg font-semibold">Funding Required</p>
+                  <TextField
+                    value={values.funding}
+                    name="funding"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.funding ? true : false}
+                    helperText={errors.funding}
+                    fullWidth
+                    label="Funding Required"
+                    variant="outlined"
+                    required
+                    className="bg-white"
+                    sx={{
+                      "& label.Mui-focused": {
+                        color: "#84cc16",
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#84cc16",
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+                <Box className="flex justify-end gap-3 items-center">
+                  <Button
+                    onClick={props.onClose}
+                    variant="contained"
+                    sx={{
+                      textTransform: "none",
+                      backgroundColor: "#B0B0B0",
+                      color: "white",
+                      padding: "12px",
+                      width: "100px",
+                      borderRadius: "10px",
+                      "&:hover": {
+                        backgroundColor: "#8C8C8C",
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
 
-            <Button
-              onClick={handleSave}
-              variant="contained"
-              sx={{
-                textTransform: "none",
-                backgroundColor: "#84cc16",
-                color: "white",
-                padding: "12px",
-                width: "100px",
-                borderRadius: "10px",
-                "&:hover": {
-                  backgroundColor: "#6aa40f",
-                },
-              }}
-            >
-              Save
-            </Button>
-          </Box>
-        </Box>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      textTransform: "none",
+                      backgroundColor: "#84cc16",
+                      color: "white",
+                      padding: "12px",
+                      width: "100px",
+                      borderRadius: "10px",
+                      "&:hover": {
+                        backgroundColor: "#6aa40f",
+                      },
+                    }}
+                  >
+                    Save
+                  </Button>
+                </Box>
+              </Box>
+            </Form>
+          )}
+        </Formik>
       </Box>
     </Modal>
   );

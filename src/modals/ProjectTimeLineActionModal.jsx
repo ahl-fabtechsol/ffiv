@@ -2,8 +2,13 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import { IconButton, TextField } from "@mui/material";
-import { MdCancel, MdDelete } from "react-icons/md";
-import { IoMdAdd } from "react-icons/io";
+import { MdCancel } from "react-icons/md";
+import { Loader } from "../components/customLoader/Loader";
+import toast from "react-hot-toast";
+import apiClient from "../api/apiClient";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { useState } from "react";
 
 const style = {
   position: "absolute",
@@ -36,27 +41,34 @@ const style = {
 };
 
 const ProjectTimeLineActionModal = (props) => {
-  const { phases, setPhases } = props;
-  const handleAddPhase = () => {
-    setPhases([
-      ...phases,
-      { id: Date.now(), phaseName: "", completionDetails: "" },
-    ]);
-  };
+  const { campaignId } = props;
+  const [loading, setLoading] = useState(false);
 
-  const handleRemovePhase = (id) => {
-    setPhases(phases.filter((phase) => phase.id !== id));
-  };
+  const validationSchema = Yup.object().shape({
+    title: Yup.string().required("Title is Required"),
+    goal: Yup.string().required("Goal is Required"),
+  });
 
-  const handleChangePhase = (id, field, value) => {
-    setPhases(
-      phases.map((phase) =>
-        phase.id === id ? { ...phase, [field]: value } : phase
-      )
-    );
-  };
-  const handleSave = () => {
-    props.onSave();
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.post("timeline", {
+        ...values,
+        campaignId,
+      });
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Something went wrong");
+        return;
+      }
+      setLoading(false);
+      toast.success("Project Timeline added successfully");
+      props.onAction();
+      props.onClose();
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
   };
   return (
     <Modal
@@ -66,6 +78,7 @@ const ProjectTimeLineActionModal = (props) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
+        <Loader loading={loading} />
         <Box className="flex justify-between items-center">
           <p className="text-xl font-bold">Add Project Timeline</p>
 
@@ -79,124 +92,108 @@ const ProjectTimeLineActionModal = (props) => {
             Define the project phases and their estimated completion dates.
           </p>
         </Box>
-
-        {phases.map((phase, index) => (
-          <Box
-            key={phase.id}
-            className="flex flex-col gap-6 p-6 border rounded-xl bg-white shadow-md my-3"
-          >
-            <TextField
-              fullWidth
-              label="Phase Name"
-              variant="outlined"
-              value={phase.phaseName}
-              onChange={(e) =>
-                handleChangePhase(phase.id, "phaseName", e.target.value)
-              }
-              required
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-
-            <TextField
-              fullWidth
-              label="Completion Date and Details"
-              variant="outlined"
-              multiline
-              rows={3}
-              value={phase.completionDetails}
-              onChange={(e) =>
-                handleChangePhase(phase.id, "completionDetails", e.target.value)
-              }
-              required
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-
-            <Box className="flex justify-end">
-              <IconButton
-                color="error"
-                onClick={() => handleRemovePhase(phase.id)}
-              >
-                <MdDelete />
-              </IconButton>
-            </Box>
-          </Box>
-        ))}
-
-        <Button
-          startIcon={<IoMdAdd />}
-          onClick={handleAddPhase}
-          variant="contained"
-          sx={{
-            textTransform: "none",
-            backgroundColor: "#84cc16",
-            color: "white",
-            padding: "12px",
-            width: "100%",
-            borderRadius: "10px",
-            "&:hover": {
-              backgroundColor: "#6aa40f",
-            },
+        <Formik
+          initialValues={{
+            title: "",
+            goal: "",
           }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
         >
-          Add New Phase
-        </Button>
-        <Box className="flex flex-col my-10 gap-6">
-          <Box className="flex justify-end gap-3 items-center">
-            <Button
-              onClick={props.onClose}
-              variant="contained"
-              sx={{
-                textTransform: "none",
-                backgroundColor: "#B0B0B0",
-                color: "white",
-                padding: "12px",
-                width: "100px",
-                borderRadius: "10px",
-                "&:hover": {
-                  backgroundColor: "#8C8C8C",
-                },
-              }}
-            >
-              Cancel
-            </Button>
+          {({ values, handleChange, errors, handleBlur }) => (
+            <Form>
+              <Box className="flex flex-col gap-6 p-6 border rounded-xl bg-white shadow-md my-3">
+                <TextField
+                  fullWidth
+                  label="Title"
+                  variant="outlined"
+                  value={values.title}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="title"
+                  error={errors.title}
+                  helperText={errors.title}
+                  required
+                  sx={{
+                    "& label.Mui-focused": {
+                      color: "#84cc16",
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#84cc16",
+                      },
+                    },
+                  }}
+                />
 
-            <Button
-              onClick={handleSave}
-              variant="contained"
-              sx={{
-                textTransform: "none",
-                backgroundColor: "#84cc16",
-                color: "white",
-                padding: "12px",
-                width: "100px",
-                borderRadius: "10px",
-                "&:hover": {
-                  backgroundColor: "#6aa40f",
-                },
-              }}
-            >
-              Save
-            </Button>
-          </Box>
-        </Box>
+                <TextField
+                  fullWidth
+                  label="Goal"
+                  variant="outlined"
+                  multiline
+                  rows={3}
+                  value={values.goal}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="goal"
+                  error={errors.goal}
+                  helperText={errors.goal}
+                  required
+                  sx={{
+                    "& label.Mui-focused": {
+                      color: "#84cc16",
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#84cc16",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+
+              <Box className="flex flex-col my-10 gap-6">
+                <Box className="flex justify-end gap-3 items-center">
+                  <Button
+                    onClick={props.onClose}
+                    variant="contained"
+                    sx={{
+                      textTransform: "none",
+                      backgroundColor: "#B0B0B0",
+                      color: "white",
+                      padding: "12px",
+                      width: "100px",
+                      borderRadius: "10px",
+                      "&:hover": {
+                        backgroundColor: "#8C8C8C",
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      textTransform: "none",
+                      backgroundColor: "#84cc16",
+                      color: "white",
+                      padding: "12px",
+                      width: "100px",
+                      borderRadius: "10px",
+                      "&:hover": {
+                        backgroundColor: "#6aa40f",
+                      },
+                    }}
+                  >
+                    Save
+                  </Button>
+                </Box>
+              </Box>
+            </Form>
+          )}
+        </Formik>
       </Box>
     </Modal>
   );
