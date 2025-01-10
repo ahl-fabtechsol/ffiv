@@ -5,10 +5,11 @@ import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Box, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const ImageSlider = () => {
   const [sliderRef, setSliderRef] = useState(null);
-
+  const navigate = useNavigate();
   const settings = {
     dots: true,
     infinite: true,
@@ -51,6 +52,7 @@ const ImageSlider = () => {
           community
         </p>
         <Button
+          onClick={() => navigate("/signup")}
           className="bg_primary"
           sx={{
             textTransform: "none",

@@ -2,8 +2,10 @@ import React from "react";
 import { FaStar, FaCheckCircle, FaArrowRight } from "react-icons/fa";
 import ImageSlider from "../../components/ImageSlider";
 import { Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Campaign = () => {
+  const navigate = useNavigate();
   return (
     <Box className="min-h-screen bg-gray-100">
       <ImageSlider />
@@ -65,7 +67,7 @@ const Campaign = () => {
         </Box>
       </Box>
 
-      <Box component={"section"} className="py-20 bg-gray-100">
+      {/* <Box component={"section"} className="py-20 bg-gray-100">
         <Box className="container mx-auto px-6 text-center">
           <h2 className="text-4xl font-extrabold text-gray-800 mb-12">
             Flexible Pricing Plans
@@ -146,7 +148,7 @@ const Campaign = () => {
             ))}
           </Box>
         </Box>
-      </Box>
+      </Box> */}
 
       <Box component={"section"} className="bg-gray-100 py-20">
         <Box className="container mx-auto px-6 lg:px-20">
@@ -218,7 +220,10 @@ const Campaign = () => {
             Join thousands of creators and turn your ideas into reality. Start
             your journey today!
           </p>
-          <button className="bg_primary text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 ease-in-out flex items-center justify-center mx-auto shadow-lg">
+          <button
+            onClick={() => navigate("/signup")}
+            className="bg_primary text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 ease-in-out flex items-center justify-center mx-auto shadow-lg"
+          >
             Start Creating Now
             <FaArrowRight className="ml-3 text-xl" />
           </button>

@@ -33,7 +33,7 @@ const Login = () => {
         login({
           accessToken: response?.data?.accessToken,
           refreshToken: response?.data?.refreshToken,
-          role: response?.data?.role,
+          role: response?.data?.user?.role,
           user: response?.data?.user,
           isLoggedIn: true,
         })

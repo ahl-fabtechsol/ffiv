@@ -1,5 +1,5 @@
 import { Box, LinearProgress, Button } from "@mui/material";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TeamCard from "../components/TeamCard";
 import AnimatedTestimonials from "../components/AnimatedTestimonials";
 import FaqAccordion from "../components/FaqAccordian";
@@ -19,6 +19,7 @@ export default function Page() {
   const [faqs, setFaqs] = useState([]);
   const [rewards, setRewards] = useState([]);
   const [projectTimelines, setProjectTimelines] = useState([]);
+  const navigate = useNavigate();
 
   const getTeamData = async () => {
     setLoading(true);
@@ -121,6 +122,11 @@ export default function Page() {
             {data?.shortSummary || "An innovative project changing the world."}
           </p>
           <Button
+            onClick={() =>
+              navigate("/payment", {
+                state: { rewards: rewards, campaignId: id },
+              })
+            }
             className="bg_primary p-10 "
             sx={{
               textTransform: "none",
@@ -204,26 +210,6 @@ export default function Page() {
                   ${reward?.price}
                 </p>
                 <ul className="text-left space-y-3 mb-8">
-                  {/* {reward?.features.map((feature, i) => (
-                    <li key={i} className="flex items-center">
-                      <svg
-                        className="w-6 h-6 text_primary mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))} */}
-
                   {reward?.features.map((feature, i) => {
                     if (
                       i === 0 &&
@@ -275,7 +261,14 @@ export default function Page() {
                     );
                   })}
                 </ul>
-                <button className="w-full bg_primary hover:bg_primary text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out">
+                <button
+                  onClick={() =>
+                    navigate("/payment", {
+                      state: { rewards: rewards, campaignId: id },
+                    })
+                  }
+                  className="w-full bg_primary hover:bg_primary text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out"
+                >
                   Claim Reward
                 </button>
               </Box>
@@ -287,6 +280,11 @@ export default function Page() {
       <Box className="p-10 text-center">
         <p className="text-3xl mb-4 font-bold">Ready to make a difference?</p>
         <Button
+          onClick={() =>
+            navigate("/payment", {
+              state: { rewards: rewards, campaignId: id },
+            })
+          }
           className="bg_primary p-10 "
           sx={{
             textTransform: "none",

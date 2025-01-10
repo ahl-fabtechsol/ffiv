@@ -17,6 +17,7 @@ import { MdOutlineAccountCircle } from "react-icons/md";
 import { TiGroup } from "react-icons/ti";
 import { CiSettings } from "react-icons/ci";
 import { IoLogOutOutline } from "react-icons/io5";
+import { useSelector } from "react-redux";
 
 const profileDropdownItems = [
   {
@@ -44,17 +45,9 @@ const profileDropdownItems = [
 function Navbar({ handleDrawerToggle }) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down(900));
-
+  const user = useSelector((state) => state.auth.user);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
-  const handleAvatarClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <Box>
@@ -68,44 +61,18 @@ function Navbar({ handleDrawerToggle }) {
                     variant="subtitle1"
                     className="font-bold text-gray-900"
                   >
-                    Joshua Spencer
+                    {user?.firstName} {user?.lastName}
                   </Typography>
                   <Typography variant="body2" className="text-gray-500">
-                    Client
+                    {user?.role === "AD" ? "Admin" : "User"}
                   </Typography>
                 </Box>
 
                 <Avatar
                   alt="User Name"
-                  src="/navbarProfilePic.svg"
-                  className="w-10 h-10 mr-2"
-                  onClick={handleAvatarClick}
+                  src={user?.profilePicture || "/avatar.png"}
+                  className="w-12 h-12 rounded-full object-cover "
                 />
-
-                <Menu
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={handleClose}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                >
-                  {profileDropdownItems.map((item) => (
-                    <MenuItem
-                      className="flex items-center gap-3 w-64"
-                      key={item.id}
-                      onClick={handleClose}
-                    >
-                      {item.icon}
-                      <Typography>{item.value}</Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
               </Box>
 
               <Hidden mdUp>

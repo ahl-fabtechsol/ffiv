@@ -19,10 +19,15 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAllCampaigns from "./pages/admin/AdminAllCampaigns";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminMessages from "./pages/admin/AdminMessages";
+import Payment from "./pages/Payment";
+import SuccessPage from "./pages/SuccessPage";
+import CancelPage from "./pages/CancelPage";
 
 const App = () => {
   return (
     <Routes>
+      <Route path="/payment_success" element={<SuccessPage />} />
+      <Route path="/payment_cancel" element={<CancelPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
@@ -33,6 +38,7 @@ const App = () => {
       </Route>
       <Route element={<Layout type="other" />}>
         <Route path="/explore" element={<Explore />} />
+        <Route path="/payment" element={<Payment />} />
       </Route>
 
       <Route element={<Dashboardnav type="user" />}>
