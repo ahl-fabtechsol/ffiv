@@ -1,14 +1,14 @@
 import { Box } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import BasicInfoSection from "./BasicInfoSection";
 import UploadDocumentsSections from "./UploadDocumentsSections";
 import TeamMembersSection from "./TeamMembersSection";
-import BackersSection from "./BackersSection";
 import FaqsSection from "./FaqsSection";
 import ProjectTimeLineSection from "./ProjectTimeLineSection";
 import RewardSection from "./RewardSection";
 
 const CreateCampaign = () => {
+  const [campaignId, setCampaignId] = useState(null);
   return (
     <Box className="p-8 flex flex-col gap-8">
       <Box className="flex flex-col gap-3">
@@ -22,13 +22,16 @@ const CreateCampaign = () => {
           numquam, aliquid rem. Officiis nobis illo pariatur tenetur qui?
         </p>
       </Box>
-      <BasicInfoSection />
-      <UploadDocumentsSections />
-      <TeamMembersSection />
-      <BackersSection />
-      <FaqsSection />
-      <ProjectTimeLineSection />
-      <RewardSection />
+      <BasicInfoSection setCampaignId={setCampaignId} />
+      {campaignId && (
+        <>
+          <UploadDocumentsSections campaignId={campaignId} />
+          <TeamMembersSection campaignId={campaignId} />
+          <FaqsSection campaignId={campaignId} />
+          <ProjectTimeLineSection campaignId={campaignId} />
+          <RewardSection campaignId={campaignId} />
+        </>
+      )}
     </Box>
   );
 };

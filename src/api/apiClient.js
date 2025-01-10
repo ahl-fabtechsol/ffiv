@@ -2,8 +2,8 @@ import { create } from "apisauce";
 import { store } from "../redux/store";
 import { logout } from "../redux/authSlice";
 import toast from "react-hot-toast";
-// const baseURL = "https://sidhulushpaints-be.vercel.app/api/v1/";
-const baseURL = "http://localhost:6969/api/v1/";
+const baseURL = "https://ffiv-be.vercel.app/api/v1/";
+// const baseURL = "http://localhost:6969/api/v1/";
 const apiClient = create({
   baseURL: baseURL,
 });

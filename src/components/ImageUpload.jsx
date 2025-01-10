@@ -2,19 +2,38 @@ import React, { useState, useRef } from "react";
 import { Button, Box } from "@mui/material";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
+import imageCompression from "browser-image-compression";
 
 const ImageUpload = (props) => {
   const { setImageFile } = props;
   const [imageSrc, setImageSrc] = useState(null);
   const imageRef = useRef(null);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const imageURL = URL.createObjectURL(file);
-      setImageSrc(imageURL);
+  const compressImage = async (imageFile) => {
+    const options = {
+      maxSizeMB: 3,
+      maxWidthOrHeight: 800,
+      useWebWorker: true,
+    };
+
+    try {
+      const compressedFile = await imageCompression(imageFile, options);
+      const file = new File([compressedFile], compressedFile.name, {
+        type: compressedFile.type,
+      });
+      return file;
+    } catch (error) {
+      console.error("Image compression failed:", error.message);
+      return imageFile;
     }
+  };
+
+  const handleImageChange = async (event) => {
+    const file = event.target.files[0];
+    const compressedFile = await compressImage(file);
+    setImageFile(compressedFile);
+    const preview = URL.createObjectURL(compressedFile);
+    setImageSrc(preview);
   };
 
   const handleRemoveImage = () => {
@@ -55,7 +74,7 @@ const ImageUpload = (props) => {
             accept="image/*"
             className="hidden"
             id="image-upload"
-            onChange={handleFileChange}
+            onChange={handleImageChange}
           />
           <label htmlFor="image-upload">
             <Button

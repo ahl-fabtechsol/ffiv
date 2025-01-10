@@ -3,20 +3,47 @@ import { FiSearch } from "react-icons/fi";
 import { FaBorderAll } from "react-icons/fa";
 import { RiPagesLine } from "react-icons/ri";
 import { BiDonateHeart } from "react-icons/bi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaArrowUp } from "react-icons/fa";
 import { FaArrowDown } from "react-icons/fa";
 import useBreakpoint from "../hooks/UseBreakPoints";
 import { ExpandableCardGrid } from "../components/ExpandableCardGrid";
 import { cards } from "../lib/dummyData";
+import { Loader } from "../components/customLoader/Loader";
+import toast from "react-hot-toast";
+import apiClient from "../api/apiClient";
 
 const Explore = () => {
   const [activeFilterTab, setActiveFilterTab] = useState("all");
   const [activeSortTab, setActiveSortTab] = useState("price");
   const breakpoint = useBreakpoint();
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const getCampaigns = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get("campaign");
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Something went wrong");
+        return;
+      }
+      setLoading(false);
+      setCampaigns(response?.data?.campaigns);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
+  };
+
+  useEffect(() => {
+    getCampaigns();
+  }, []);
 
   return (
     <div className="mt-2">
+      <Loader loading={loading} />
       <div className="py-4 xs:px-20 px-12 xs:py-10 sm:flex justify-between items-end border-b-2">
         <div className="mb-5 sm:mb-0">
           <p className="text-3xl font-bold text-black">Explore</p>
@@ -145,7 +172,7 @@ const Explore = () => {
         </div>
       </div>
       <div className="py-4 xs:px-20 px-8 xs:py-10 ">
-        <ExpandableCardGrid cards={cards} />
+        <ExpandableCardGrid cards={campaigns} />
       </div>
     </div>
   );

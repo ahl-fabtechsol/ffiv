@@ -16,7 +16,7 @@ const ProjectTimeline = ({ timeline }) => {
       <Box className="relative max-w-6xl mx-auto">
         <Box className="absolute left-4 lg:left-1/2 transform lg:-translate-x-1/2 top-0 w-1 bg-gray-300 h-full rounded-lg"></Box>
 
-        {timeline.map((item, index) => (
+        {timeline?.map((item, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, x: -30 }}
@@ -27,7 +27,7 @@ const ProjectTimeline = ({ timeline }) => {
             } mb-12 lg:mb-16`}
           >
             <Box className="w-12 h-12 flex items-center justify-center rounded-full border-4 border-gray-400 bg-white relative z-10">
-              {item.completed ? (
+              {item?.completed ? (
                 <span className="block w-6 h-6 bg-green-500 rounded-full"></span>
               ) : (
                 <span className="block w-6 h-6 bg-gray-300 rounded-full"></span>
@@ -44,10 +44,10 @@ const ProjectTimeline = ({ timeline }) => {
                 className="bg-white shadow-lg hover:shadow-2xl rounded-xl p-6 lg:p-8 transition-all"
               >
                 <p className="text-xl sm:text-2xl font-semibold text-gray-800">
-                  {item.phase}
+                  {item?.title}
                 </p>
                 <p className="text-sm sm:text-md mt-3 text-gray-500 leading-relaxed">
-                  {item.description}
+                  {item?.goal}
                 </p>
               </motion.div>
             </Box>

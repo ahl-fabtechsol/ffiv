@@ -6,6 +6,10 @@ import { MdCancel } from "react-icons/md";
 import VideoUpload from "../components/VideoUpload";
 import ImageUpload from "../components/ImageUpload";
 import { useEffect, useState } from "react";
+import { Loader } from "../components/customLoader/Loader";
+import toast from "react-hot-toast";
+import apiClient from "../api/apiClient";
+import axios from "axios";
 
 const style = {
   position: "absolute",
@@ -38,17 +42,79 @@ const style = {
 };
 
 const UploadDocumentsActionModal = (props) => {
-  const { type } = props;
+  const { type, data, campaignId } = props;
   const [videoFile, setVideoFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
-  const handleSave = () => {
-    props.onSave({ videoFile, imageFile });
+  const [loading, setLoading] = useState(false);
+  const handleSave = async () => {
+    if (!videoFile || !imageFile) {
+      toast.error("Both and image and video are required");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await apiClient.get("document/pre-signed", {
+        fileName: videoFile.name,
+        fileType: videoFile.type,
+      });
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(
+          response?.data?.message ||
+            "An error occured while getting pre-signed url"
+        );
+        return;
+      }
+      const { url, fileKey } = response?.data;
+
+      const config = {
+        headers: {
+          "Content-Type": videoFile.type,
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentage = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+
+          toast.loading(`Uploading Video ... ${percentage}%`, { id: "upload" });
+
+          if (percentage === 100) {
+            toast.success("Upload complete!", { id: "upload" });
+          }
+        },
+      };
+
+      await axios.put(url, videoFile, config);
+
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      formData.append("videoKey", fileKey);
+      formData.append("campaignId", campaignId);
+
+      const documentResponse = await apiClient.post("document", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (!documentResponse.ok) {
+        setLoading(false);
+        toast.error(
+          documentResponse?.data?.message ||
+            "An error occured while saving documents"
+        );
+        return;
+      }
+      setLoading(false);
+      toast.success("Documents uploaded successfully");
+      props.onClose();
+      props.onAction();
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      toast.error("An error occured while uploading documents");
+    }
   };
 
-  useEffect(() => {
-    if (type === "edit") {
-    }
-  });
   return (
     <Modal
       open={props.open}
@@ -57,8 +123,11 @@ const UploadDocumentsActionModal = (props) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
+        <Loader loading={loading} />
         <Box className="flex justify-between items-center">
-          <p className="text-xl font-bold">Upload Doccuments</p>
+          <p className="text-xl font-bold">
+            {type === "edit" ? "Edit" : "Upload"} Doccuments
+          </p>
 
           <IconButton onClick={props.onClose}>
             <MdCancel size={25} color="black" />

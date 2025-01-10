@@ -8,10 +8,16 @@ import { useNavigate } from "react-router-dom";
 import { useOutsideClick } from "../hooks/useOutsideClick";
 
 export function ExpandableCardGrid({ cards }) {
+  console.log(cards);
   const [active, setActive] = useState(null);
   const id = useId();
   const ref = useRef(null);
   const navigate = useNavigate();
+
+  const getPercentage = (funded, funding) => {
+    const value = (funded / funding) * 100;
+    return parseFloat(value).toFixed(2);
+  };
 
   useEffect(() => {
     function onKeyDown(event) {
@@ -52,7 +58,7 @@ export function ExpandableCardGrid({ cards }) {
         {active && typeof active === "object" ? (
           <div className="fixed inset-0 grid place-items-center z-[100]">
             <motion.button
-              key={`button-${active.title}-${id}`}
+              key={`button-${active.name}-${id}`}
               layout
               initial={{
                 opacity: 0,
@@ -72,17 +78,17 @@ export function ExpandableCardGrid({ cards }) {
               <CloseIcon />
             </motion.button>
             <motion.div
-              layoutId={`card-${active.title}-${id}`}
+              layoutId={`card-${active.name}-${id}`}
               ref={ref}
               className="w-full max-w-[500px] h-full md:h-fit md:max-h-[90%] flex flex-col bg-white dark:bg-neutral-900 sm:rounded-3xl overflow-hidden"
             >
-              <motion.div layoutId={`image-${active.title}-${id}`}>
+              <motion.div layoutId={`image-${active.name}-${id}`}>
                 <img
                   priority
                   width={200}
                   height={200}
-                  src={active.src}
-                  alt={active.title}
+                  src={active.campaignDocument.image}
+                  alt={active.name}
                   className="w-full h-80 lg:h-80 sm:rounded-tr-lg sm:rounded-tl-lg object-cover object-top"
                 />
               </motion.div>
@@ -91,22 +97,22 @@ export function ExpandableCardGrid({ cards }) {
                 <div className="flex justify-between items-start p-4">
                   <div className="">
                     <motion.h3
-                      layoutId={`title-${active.title}-${id}`}
+                      layoutId={`title-${active.name}-${id}`}
                       className="font-medium text-neutral-700 dark:text-neutral-200 text-base"
                     >
                       {active.title}
                     </motion.h3>
                     <motion.p
-                      layoutId={`description-${active.description}-${id}`}
+                      layoutId={`description-${active.detail}-${id}`}
                       className="text-neutral-600 dark:text-neutral-400 text-base"
                     >
-                      {active.description}
+                      {active.detail}
                     </motion.p>
                   </div>
 
                   <button
                     onClick={() =>
-                      navigate(`/explore/${active.id}`, {
+                      navigate(`/explore/${active._id}`, {
                         state: { active },
                       })
                     }
@@ -138,23 +144,23 @@ export function ExpandableCardGrid({ cards }) {
         ) : null}
       </AnimatePresence>
       <ul className="max-w-7xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start gap-4">
-        {cards.map((card, index) => (
+        {cards?.map((card, index) => (
           <motion.div
-            layoutId={`card-${card.title}-${id}`}
+            layoutId={`card-${card?.name}-${id}`}
             key={index}
             className="p-4 flex flex-col hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl cursor-pointer"
           >
             <div className="flex gap-4 flex-col w-full shadow-md rounded-lg">
               <motion.div
-                layoutId={`image-${card.title}-${id}`}
+                layoutId={`image-${card?.name}-${id}`}
                 onClick={() => setActive(card)}
               >
                 <img
                   width={100}
                   height={100}
-                  src={card.src}
-                  alt={card.title}
-                  className="h-60 w-full rounded-lg object-cover object-top"
+                  src={card?.campaignDocument?.image}
+                  alt={card?.name}
+                  className="h-60 w-full rounded-lg object-cover object-center"
                 />
               </motion.div>
               <div className="p-3 flex flex-col gap-2">
@@ -162,16 +168,16 @@ export function ExpandableCardGrid({ cards }) {
                   <div className="flex items-center gap-2 ">
                     <Avatar className="flex items-center justify-center">
                       <img
-                        src="/profileAvatar.svg"
+                        src={card?.createdBy?.profileImage}
                         alt="User Avatar"
-                        className="w-8 h-8"
+                        className="w-8 h-8 "
                       />
                     </Avatar>
                     <motion.p
-                      layoutId={`description-${card.description}-${id}`}
+                      layoutId={`description-${card?.shortSummary}-${id}`}
                       className="text-neutral-600 dark:text-neutral-400 text-center md:text-left text-base"
                     >
-                      {card.userName}
+                      {card?.createdBy?.firsName}
                     </motion.p>
                   </div>
                   <div className="flex gap-2 items-center">
@@ -181,24 +187,24 @@ export function ExpandableCardGrid({ cards }) {
                 </div>
 
                 <motion.p className="font-bold text-xl text-ellipsis">
-                  {card.title}
+                  {card?.name}
                 </motion.p>
                 <motion.p className="text-fdTextGray text-sm text-ellipsis">
-                  {card.description}
+                  {card?.shortSummary}
                 </motion.p>
                 <LinearProgress
                   variant="determinate"
-                  value={card.percentage} // Updated to LinearProgress
+                  value={getPercentage(card?.funded, card?.funding)}
                 />
                 <div className="flex flex-row justify-between items-center">
                   <div className="flex flex-row items-center gap-2">
                     <FiGift />
                     <motion.p className="text-fdTextGray">
-                      eth {card.donation}
+                      $ {card?.funded}
                     </motion.p>
                   </div>
                   <motion.p className="text-fdTextGray">
-                    {card.percentage}%
+                    {getPercentage(card?.funded, card?.funding)}%
                   </motion.p>
                 </div>
               </div>

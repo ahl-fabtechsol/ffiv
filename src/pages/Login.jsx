@@ -1,10 +1,53 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Button, TextField } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { Loader } from "../components/customLoader/Loader";
+import toast from "react-hot-toast";
+import apiClient from "../api/apiClient";
+import { useDispatch } from "react-redux";
+import { login } from "../redux/authSlice";
 
 const Login = () => {
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .email("Invalid email address")
+      .required("Email is Required"),
+    password: Yup.string().required("Password is required"),
+  });
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.post("/auth/login", values);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Something went wrong");
+        return;
+      }
+      setLoading(false);
+      dispatch(
+        login({
+          accessToken: response?.data?.accessToken,
+          refreshToken: response?.data?.refreshToken,
+          role: response?.data?.role,
+          user: response?.data?.user,
+          isLoggedIn: true,
+        })
+      );
+      toast.success("Logged in successfully");
+      navigate("/");
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
+  };
   return (
     <Box className="flex h-screen">
+      <Loader loading={loading} />
       <Box className="w-1/2 h-full hidden sm:block relative">
         <video autoPlay loop muted className="w-full h-full object-cover">
           <source src="/demoVideo.mp4" type="video/mp4" />
@@ -19,75 +62,102 @@ const Login = () => {
             Sign in to your account
           </p>
 
-          <Box className="space-y-8">
-            <TextField
-              fullWidth
-              id="email"
-              label="Email Address"
-              variant="outlined"
-              required
-              className="bg-white"
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-            <TextField
-              fullWidth
-              id="password"
-              label="Password"
-              type="password"
-              variant="outlined"
-              required
-              className="bg-white"
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
+          <Formik
+            initialValues={{
+              email: "",
+              password: "",
+            }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ values, handleChange, handleBlur, errors }) => (
+              <Form>
+                <Box className="space-y-8">
+                  <TextField
+                    value={values.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.email}
+                    helperText={errors.email}
+                    name="email"
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    variant="outlined"
+                    required
+                    className="bg-white"
+                    sx={{
+                      "& label.Mui-focused": {
+                        color: "#84cc16",
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#84cc16",
+                        },
+                      },
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    value={values.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.password}
+                    helperText={errors.password}
+                    name="password"
+                    id="password"
+                    label="Password"
+                    type="password"
+                    variant="outlined"
+                    required
+                    className="bg-white"
+                    sx={{
+                      "& label.Mui-focused": {
+                        color: "#84cc16",
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#84cc16",
+                        },
+                      },
+                    }}
+                  />
 
-            <Box className="flex justify-between items-center">
-              <Link className="text-blue-500 hover:underline">
-                Forgot Password?
-              </Link>
-            </Box>
+                  <Box className="flex justify-between items-center">
+                    <Link className="text-blue-500 hover:underline">
+                      Forgot Password?
+                    </Link>
+                  </Box>
 
-            <Box className="flex justify-center">
-              <Link to="/">
-                <Button
-                  className="bg_primary p-10 "
-                  sx={{
-                    textTransform: "none",
-                    color: "white",
-                    padding: "10px",
-                    width: "250px",
-                    borderRadius: "50px",
-                  }}
-                >
-                  Log in
-                </Button>
-              </Link>
-            </Box>
+                  <Box className="flex justify-center">
+                    <Button
+                      type="submit"
+                      className="bg_primary p-10 "
+                      sx={{
+                        textTransform: "none",
+                        color: "white",
+                        padding: "10px",
+                        width: "250px",
+                        borderRadius: "50px",
+                      }}
+                    >
+                      Log in
+                    </Button>
+                  </Box>
 
-            <p className="text-center text-sm mt-6">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-blue-500 hover:underline">
-                Sign up
-              </Link>
-            </p>
-          </Box>
+                  <p className="text-center text-sm mt-6">
+                    Don't have an account?{" "}
+                    <Link
+                      to="/signup"
+                      className="text-blue-500 hover:underline"
+                    >
+                      Sign up
+                    </Link>
+                  </p>
+                </Box>
+              </Form>
+            )}
+          </Formik>
         </Box>
       </Box>
     </Box>

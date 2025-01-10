@@ -2,9 +2,13 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import { IconButton, TextField } from "@mui/material";
-import { MdCancel, MdDelete } from "react-icons/md";
-import { IoMdAdd } from "react-icons/io";
-
+import { MdCancel } from "react-icons/md";
+import { Loader } from "../components/customLoader/Loader";
+import toast from "react-hot-toast";
+import apiClient from "../api/apiClient";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { useState } from "react";
 const style = {
   position: "absolute",
   top: "50%",
@@ -36,23 +40,52 @@ const style = {
 };
 
 const FaqsActionModal = (props) => {
-  const { faqs, setFaqs } = props;
+  const { campaignId, type, data } = props;
+  const [loading, setLoading] = useState(false);
+  const validationSchema = Yup.object().shape({
+    question: Yup.string().required("Question is Required"),
+    answer: Yup.string().required("Answer is Required"),
+  });
 
-  const handleAddFAQ = () => {
-    setFaqs([...faqs, { id: Date.now(), question: "", answer: "" }]);
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.post("faq", {
+        ...values,
+        campaignId,
+      });
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Something went wrong");
+        return;
+      }
+      setLoading(false);
+      toast.success("FAQ added successfully");
+      props.onAction();
+      props.onClose();
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
   };
 
-  const handleRemoveFAQ = (id) => {
-    setFaqs(faqs.filter((faq) => faq.id !== id));
-  };
-
-  const handleChangeFAQ = (id, field, value) => {
-    setFaqs(
-      faqs.map((faq) => (faq.id === id ? { ...faq, [field]: value } : faq))
-    );
-  };
-  const handleSave = () => {
-    props.onSave();
+  const handleEdit = async (values) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.patch(`faq/${data._id}`, values);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Error while submitting");
+        return;
+      }
+      setLoading(false);
+      toast.success("FAQ updated successfully");
+      props.onAction();
+      props.onClose();
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
   };
   return (
     <Modal
@@ -62,8 +95,11 @@ const FaqsActionModal = (props) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
+        <Loader loading={loading} />
         <Box className="flex justify-between items-center">
-          <p className="text-xl font-bold">Add Faqs</p>
+          <p className="text-xl font-bold">
+            {type === "edit" ? "Edit" : "Add"} Faqs
+          </p>
 
           <IconButton onClick={props.onClose}>
             <MdCancel size={25} color="black" />
@@ -78,120 +114,108 @@ const FaqsActionModal = (props) => {
           </p>
         </Box>
 
-        {faqs.map((faq, index) => (
-          <Box
-            key={faq.id}
-            className="flex flex-col gap-6 p-6 border rounded-xl bg-white shadow-md my-3"
-          >
-            <TextField
-              fullWidth
-              label="Question"
-              variant="outlined"
-              value={faq.question}
-              onChange={(e) =>
-                handleChangeFAQ(faq.id, "question", e.target.value)
-              }
-              required
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-
-            <TextField
-              fullWidth
-              label="Answer"
-              multiline
-              rows={4}
-              variant="outlined"
-              value={faq.answer}
-              onChange={(e) =>
-                handleChangeFAQ(faq.id, "answer", e.target.value)
-              }
-              required
-              sx={{
-                "& label.Mui-focused": {
-                  color: "#84cc16",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#84cc16",
-                  },
-                },
-              }}
-            />
-
-            <Box className="flex justify-end">
-              <IconButton color="error" onClick={() => handleRemoveFAQ(faq.id)}>
-                <MdDelete />
-              </IconButton>
-            </Box>
-          </Box>
-        ))}
-
-        <Button
-          startIcon={<IoMdAdd />}
-          onClick={handleAddFAQ}
-          variant="contained"
-          sx={{
-            textTransform: "none",
-            backgroundColor: "#84cc16",
-            color: "white",
-            padding: "12px",
-            width: "100%",
-            borderRadius: "10px",
-            "&:hover": {
-              backgroundColor: "#6aa40f",
-            },
+        <Formik
+          initialValues={{
+            question: type === "edit" ? data?.question : "",
+            answer: type === "edit" ? data?.answer : "",
           }}
+          validationSchema={validationSchema}
+          onSubmit={type === "edit" ? handleEdit : handleSubmit}
         >
-          Add New FAQ
-        </Button>
-        <Box className="flex flex-col my-10 gap-6">
-          <Box className="flex justify-end gap-3 items-center">
-            <Button
-              onClick={props.onClose}
-              variant="contained"
-              sx={{
-                textTransform: "none",
-                backgroundColor: "#B0B0B0",
-                color: "white",
-                padding: "12px",
-                width: "100px",
-                borderRadius: "10px",
-                "&:hover": {
-                  backgroundColor: "#8C8C8C",
-                },
-              }}
-            >
-              Cancel
-            </Button>
+          {({ values, errors, handleChange, handleBlur }) => (
+            <Form>
+              <Box className="flex flex-col gap-6 p-6 border rounded-xl bg-white shadow-md my-3">
+                <TextField
+                  fullWidth
+                  label="Question"
+                  variant="outlined"
+                  value={values.question}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="question"
+                  error={errors.question}
+                  helperText={errors.question}
+                  required
+                  sx={{
+                    "& label.Mui-focused": {
+                      color: "#84cc16",
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#84cc16",
+                      },
+                    },
+                  }}
+                />
 
-            <Button
-              onClick={handleSave}
-              variant="contained"
-              sx={{
-                textTransform: "none",
-                backgroundColor: "#84cc16",
-                color: "white",
-                padding: "12px",
-                width: "100px",
-                borderRadius: "10px",
-                "&:hover": {
-                  backgroundColor: "#6aa40f",
-                },
-              }}
-            >
-              Save
-            </Button>
-          </Box>
-        </Box>
+                <TextField
+                  fullWidth
+                  label="Answer"
+                  multiline
+                  rows={4}
+                  variant="outlined"
+                  value={values.answer}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="answer"
+                  error={errors.answer}
+                  helperText={errors.answer}
+                  required
+                  sx={{
+                    "& label.Mui-focused": {
+                      color: "#84cc16",
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#84cc16",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+
+              <Box className="flex flex-col my-10 gap-6">
+                <Box className="flex justify-end gap-3 items-center">
+                  <Button
+                    onClick={props.onClose}
+                    variant="contained"
+                    sx={{
+                      textTransform: "none",
+                      backgroundColor: "#B0B0B0",
+                      color: "white",
+                      padding: "12px",
+                      width: "100px",
+                      borderRadius: "10px",
+                      "&:hover": {
+                        backgroundColor: "#8C8C8C",
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      textTransform: "none",
+                      backgroundColor: "#84cc16",
+                      color: "white",
+                      padding: "12px",
+                      width: "100px",
+                      borderRadius: "10px",
+                      "&:hover": {
+                        backgroundColor: "#6aa40f",
+                      },
+                    }}
+                  >
+                    Save
+                  </Button>
+                </Box>
+              </Box>
+            </Form>
+          )}
+        </Formik>
       </Box>
     </Modal>
   );
