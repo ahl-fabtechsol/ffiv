@@ -15,7 +15,7 @@ const FaqAccordion = ({ faqs }) => {
         Frequently Asked Questions
       </h2>
       <Box className="space-y-6">
-        {faqs.map((faq, index) => (
+        {faqs?.map((faq, index) => (
           <Box
             key={index}
             className="border border-gray-200 rounded-lg shadow-sm"
@@ -24,7 +24,7 @@ const FaqAccordion = ({ faqs }) => {
               className="w-full flex justify-between items-center p-6 text-left focus:outline-none"
               onClick={() => toggleFAQ(index)}
             >
-              <span className="text-lg font-medium">{faq.question}</span>
+              <span className="text-lg font-medium">{faq?.question}</span>
               {openIndex === index ? (
                 <FaChevronUp className="text-lg text-gray-500" />
               ) : (
@@ -36,7 +36,7 @@ const FaqAccordion = ({ faqs }) => {
                 openIndex === index ? "max-h-40 p-6" : "max-h-0"
               }`}
             >
-              <p className="text-gray-600">{faq.answer}</p>
+              <p className="text-gray-600">{faq?.answer}</p>
             </Box>
           </Box>
         ))}
