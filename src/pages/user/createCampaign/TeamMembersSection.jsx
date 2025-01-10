@@ -125,26 +125,25 @@ const TeamMembersSection = (props) => {
           </Box>
         ))}
       </Box>
-      {!teamMembers && (
-        <Button
-          onClick={addTeamMember}
-          variant="contained"
-          startIcon={<IoMdAdd />}
-          sx={{
-            textTransform: "none",
-            backgroundColor: "#84cc16",
-            color: "white",
-            padding: "12px",
-            width: "100%",
-            borderRadius: "10px",
-            "&:hover": {
-              backgroundColor: "#6aa40f",
-            },
-          }}
-        >
-          Add Team Members
-        </Button>
-      )}
+
+      <Button
+        onClick={addTeamMember}
+        variant="contained"
+        startIcon={<IoMdAdd />}
+        sx={{
+          textTransform: "none",
+          backgroundColor: "#84cc16",
+          color: "white",
+          padding: "12px",
+          width: "100%",
+          borderRadius: "10px",
+          "&:hover": {
+            backgroundColor: "#6aa40f",
+          },
+        }}
+      >
+        Add Team Members
+      </Button>
     </Box>
   );
 };

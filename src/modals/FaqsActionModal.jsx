@@ -40,7 +40,7 @@ const style = {
 };
 
 const FaqsActionModal = (props) => {
-  const { campaignId } = props;
+  const { campaignId, type, data } = props;
   const [loading, setLoading] = useState(false);
   const validationSchema = Yup.object().shape({
     question: Yup.string().required("Question is Required"),
@@ -60,7 +60,26 @@ const FaqsActionModal = (props) => {
         return;
       }
       setLoading(false);
-      toast.success("FAQs added successfully");
+      toast.success("FAQ added successfully");
+      props.onAction();
+      props.onClose();
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const handleEdit = async (values) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.patch(`faq/${data._id}`, values);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Error while submitting");
+        return;
+      }
+      setLoading(false);
+      toast.success("FAQ updated successfully");
       props.onAction();
       props.onClose();
     } catch (error) {
@@ -78,7 +97,9 @@ const FaqsActionModal = (props) => {
       <Box sx={style}>
         <Loader loading={loading} />
         <Box className="flex justify-between items-center">
-          <p className="text-xl font-bold">Add Faqs</p>
+          <p className="text-xl font-bold">
+            {type === "edit" ? "Edit" : "Add"} Faqs
+          </p>
 
           <IconButton onClick={props.onClose}>
             <MdCancel size={25} color="black" />
@@ -95,11 +116,11 @@ const FaqsActionModal = (props) => {
 
         <Formik
           initialValues={{
-            question: "",
-            answer: "",
+            question: type === "edit" ? data?.question : "",
+            answer: type === "edit" ? data?.answer : "",
           }}
           validationSchema={validationSchema}
-          onSubmit={handleSubmit}
+          onSubmit={type === "edit" ? handleEdit : handleSubmit}
         >
           {({ values, errors, handleChange, handleBlur }) => (
             <Form>
