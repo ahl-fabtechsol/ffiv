@@ -21,4 +21,3 @@ const CancelPage = () => {
 };
 
 export default CancelPage;
-a;
