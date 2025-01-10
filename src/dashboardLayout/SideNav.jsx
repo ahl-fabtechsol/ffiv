@@ -14,6 +14,9 @@ import { FaClipboardList } from "react-icons/fa";
 import { FaFlag } from "react-icons/fa6";
 import { FaAddressBook } from "react-icons/fa6";
 import { IoMdNotificationsOutline } from "react-icons/io";
+import { SiWebmoney } from "react-icons/si";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/authSlice";
 
 const drawerWidth = 240;
 
@@ -36,17 +39,23 @@ const listItemData = [
     link: `/user/create-campaign`,
     icon: <FaFlag className="text-xl" />,
   },
+  // {
+  //   label: "Notifications",
+  //   name: "notifications",
+  //   link: `/user/notifications`,
+  //   icon: <IoMdNotificationsOutline className="text-xl" />,
+  // },
+  // {
+  //   label: "Messages",
+  //   name: "messages",
+  //   link: `/user/messages`,
+  //   icon: <FaAddressBook className="text-xl" />,
+  // },
   {
-    label: "Notifications",
-    name: "notifications",
-    link: `/user/notifications`,
-    icon: <IoMdNotificationsOutline className="text-xl" />,
-  },
-  {
-    label: "Messages",
-    name: "messages",
-    link: `/user/messages`,
-    icon: <FaAddressBook className="text-xl" />,
+    label: "View Site",
+    name: "view-site",
+    link: "/",
+    icon: <SiWebmoney className="text-xl" />,
   },
 ];
 
@@ -69,23 +78,30 @@ const adminListItemData = [
     link: `/admin/users`,
     icon: <FaFlag className="text-xl" />,
   },
+  // {
+  //   label: "Notifications",
+  //   name: "notifications",
+  //   link: `/admin/notifications`,
+  //   icon: <IoMdNotificationsOutline className="text-xl" />,
+  // },
+  // {
+  //   label: "Messages",
+  //   name: "messages",
+  //   link: `/admin/messages`,
+  //   icon: <FaAddressBook className="text-xl" />,
+  // },
   {
-    label: "Notifications",
-    name: "notifications",
-    link: `/admin/notifications`,
-    icon: <IoMdNotificationsOutline className="text-xl" />,
-  },
-  {
-    label: "Messages",
-    name: "messages",
-    link: `/admin/messages`,
-    icon: <FaAddressBook className="text-xl" />,
+    label: "View Site",
+    name: "view-site",
+    link: "/",
+    icon: <SiWebmoney className="text-xl" />,
   },
 ];
 
 function SideNav(props) {
   const { window } = props;
   const navigate = useNavigate();
+  const dipatch = useDispatch();
   const drawer = (
     <div className="rounded-lg">
       <div className="px-3 bg-white h-screen rounded-2xl">
@@ -134,7 +150,10 @@ function SideNav(props) {
               <ListItem
                 disablePadding
                 className="cursor-pointer"
-                onClick={() => navigate("/")}
+                onClick={() => {
+                  dipatch(logout());
+                  navigate("/login");
+                }}
               >
                 <ListItemText>
                   <Typography

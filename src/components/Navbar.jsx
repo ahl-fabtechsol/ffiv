@@ -5,15 +5,26 @@ import { FiSearch } from "react-icons/fi";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { IoSettingsOutline } from "react-icons/io5";
 import { Avatar, Input, Drawer } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { IoLogOutOutline } from "react-icons/io5";
+import { store } from "../redux/store";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/authSlice";
 
 const Navbar = ({ type }) => {
   const [openDrawer, setOpenDrawer] = useState(false);
+  const dispatch = useDispatch();
   const txtColor = type === "other" ? "text-black" : "text-white";
-
-  // Function to toggle the drawer
+  const userImage = store?.getState()?.auth?.user?.profilePicture;
+  const isLoggedIn = store?.getState()?.auth?.isLoggedIn;
+  const navigate = useNavigate();
   const toggleDrawer = (open) => {
     setOpenDrawer(open);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
   };
 
   return (
@@ -36,57 +47,54 @@ const Navbar = ({ type }) => {
             </Link>
           </div>
 
-          <Link
-            to="/"
-            className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
-          >
-            Home
-          </Link>
-          <Link
-            to="/explore"
-            className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
-          >
-            Explore
-          </Link>
-          <Link
-            to="/campaign"
-            className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
-          >
-            Campaigns
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              to="/explore"
+              className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
+            >
+              Explore
+            </Link>
+          ) : (
+            <Link
+              to="/campaign"
+              className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
+            >
+              Campaigns
+            </Link>
+          )}
         </div>
 
         <div className="hidden md:flex flex-row gap-3 items-center">
-          {type === "home" ? (
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Search"
-                className="pl-8 bg-transparent text-white placeholder:text-white"
+          {isLoggedIn ? (
+            <>
+              <Avatar
+                className="flex items-center justify-center cursor-pointer"
+                onClick={() => {
+                  navigate("/user/dashboard");
+                }}
+              >
+                <img
+                  src={userImage || "/profileAvatar.svg"}
+                  crossOrigin="anonymous"
+                  alt="User Avatar"
+                  className="w-10 h-10 object-cover rounded-full"
+                />
+              </Avatar>
+              <IoLogOutOutline
+                onClick={handleLogout}
+                color={type === "home" ? "white" : "black"}
+                size={23}
+                className="cursor-pointer hover:text-gray-300"
+                style={{ marginBottom: "0.5px" }}
               />
-              <span className="absolute inset-y-0 left-0 flex items-center pr-3">
-                <FiSearch className="text-white ml-3" />
-              </span>
-            </div>
+            </>
           ) : (
-            ""
+            <Link to="/login">
+              <button className="text-white bg-fdPrimary px-3 py-1 rounded-md">
+                Login
+              </button>
+            </Link>
           )}
-          <IoIosAddCircleOutline
-            size={25}
-            className={`cursor-pointer hover:text-fdPrimary ${txtColor}`}
-          />
-          <Avatar className="flex items-center justify-center">
-            <img
-              src="/profileAvatar.svg"
-              alt="User Avatar"
-              className="w-8 h-8"
-            />
-          </Avatar>
-          <IoSettingsOutline
-            size={23}
-            className={`cursor-pointer hover:text-fdPrimary ${txtColor}`}
-            style={{ marginBottom: "0.5px" }}
-          />
         </div>
 
         <div className="md:hidden">
@@ -112,36 +120,48 @@ const Navbar = ({ type }) => {
                 >
                   FundFiesta
                 </Link>
-                <Link to="/" className="text-white text-lg">
-                  Home
-                </Link>
-                <Link to="/explore" className="text-white text-lg">
-                  Explore
-                </Link>
-                <Link to="/campaign" className="text-white text-lg">
-                  Campaigns
-                </Link>
+
+                {isLoggedIn ? (
+                  <Link to="/explore" className="text-white text-lg">
+                    Explore
+                  </Link>
+                ) : (
+                  <Link to="/campaign" className="text-white text-lg">
+                    Campaigns
+                  </Link>
+                )}
               </nav>
 
-              <div className="flex flex-row gap-3 items-center justify-end mt-4">
-                <IoIosAddCircleOutline
-                  color="white"
-                  size={25}
-                  className="cursor-pointer hover:text-gray-300"
-                />
-                <Avatar className="flex items-center justify-center">
-                  <img
-                    src="/profileAvatar.svg"
-                    alt="User Avatar"
-                    className="w-8 h-8"
-                  />
-                </Avatar>
-                <IoSettingsOutline
-                  color="white"
-                  size={23}
-                  className="cursor-pointer hover:text-gray-300"
-                  style={{ marginBottom: "0.5px" }}
-                />
+              <div className="flex flex-row gap-3 items-center justify-start mt-4">
+                {isLoggedIn ? (
+                  <>
+                    <Avatar
+                      className="flex items-center justify-center"
+                      onClick={() => {
+                        navigate("/user/dashboard");
+                      }}
+                    >
+                      <img
+                        src={userImage || "/profileAvatar.svg"}
+                        alt="User Avatar"
+                        className="w-10 h-10 object-cover rounded-full"
+                      />
+                    </Avatar>
+                    <IoLogOutOutline
+                      onClick={handleLogout}
+                      color={type === "home" ? "white" : "black"}
+                      size={23}
+                      className="cursor-pointer hover:text-gray-300"
+                      style={{ marginBottom: "0.5px" }}
+                    />
+                  </>
+                ) : (
+                  <Link to="/login">
+                    <button className="text-white bg-fdPrimary px-3 py-1 rounded-md">
+                      Login
+                    </button>
+                  </Link>
+                )}
               </div>
             </div>
           </Drawer>

@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { useOutsideClick } from "../hooks/useOutsideClick";
 
 export function ExpandableCardGrid({ cards }) {
-  console.log(cards);
   const [active, setActive] = useState(null);
   const id = useId();
   const ref = useRef(null);
@@ -168,9 +167,9 @@ export function ExpandableCardGrid({ cards }) {
                   <div className="flex items-center gap-2 ">
                     <Avatar className="flex items-center justify-center">
                       <img
-                        src={card?.createdBy?.profileImage}
+                        src={card?.createdBy?.profilePicture}
                         alt="User Avatar"
-                        className="w-8 h-8 "
+                        className="w-10 h-10 object-cover rounded-full"
                       />
                     </Avatar>
                     <motion.p
