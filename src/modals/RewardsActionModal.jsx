@@ -41,7 +41,7 @@ const style = {
 };
 
 const RewardsActionModal = (props) => {
-  const { campaignId } = props;
+  const { campaignId, type, data } = props;
   const [loading, setLoading] = useState(false);
 
   const validationSchema = Yup.object().shape({
@@ -71,6 +71,25 @@ const RewardsActionModal = (props) => {
       toast.error("Something went wrong");
     }
   };
+
+  const handleEdit = async (values) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.patch(`reward/${data?._id}`, values);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Error while editing");
+        return;
+      }
+      setLoading(false);
+      toast.success("Edited");
+      props.onAction();
+      props.onClose();
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
+  };
   return (
     <Modal
       open={props.open}
@@ -81,7 +100,9 @@ const RewardsActionModal = (props) => {
       <Box sx={style}>
         <Loader loading={loading} />
         <Box className="flex justify-between items-center">
-          <p className="text-xl font-bold">Add Rewards</p>
+          <p className="text-xl font-bold">
+            {type === "edit" ? "Edit" : "Add"} Rewards
+          </p>
 
           <IconButton onClick={props.onClose}>
             <MdCancel size={25} color="black" />
@@ -95,12 +116,12 @@ const RewardsActionModal = (props) => {
         </Box>
         <Formik
           initialValues={{
-            title: "",
-            price: "",
-            features: "",
+            title: type === "edit" ? data.title : "",
+            price: type === "edit" ? data?.price : "",
+            features: type === "edit" ? data?.features : "",
           }}
           validationSchema={validationSchema}
-          onSubmit={handleSubmit}
+          onSubmit={type === "edit" ? handleEdit : handleSubmit}
         >
           {({ values, errors, handleChange, handleBlur, setFieldValue }) => (
             <Form>

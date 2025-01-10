@@ -1,29 +1,72 @@
-import { Box, Button } from "@mui/material";
-import React, { useState } from "react";
+import { Box, Button, IconButton } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import RewardsActionModal from "../../../modals/RewardsActionModal";
+import { Loader } from "../../../components/customLoader/Loader";
+import toast from "react-hot-toast";
+import apiClient from "../../../api/apiClient";
+import { MdDelete } from "react-icons/md";
+import { FaRegEdit } from "react-icons/fa";
 
 const RewardSection = (props) => {
   const { campaignId } = props;
+  const [loading, setLoading] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [modalData, setModalData] = useState(null);
   const [onAction, setOnAction] = useState(false);
-  const [rewards, setRewards] = useState([
-    {
-      id: Date.now(),
-      name: "",
-      price: "",
-      features: [],
-    },
-  ]);
+  const [rewards, setRewards] = useState([]);
   const [rewardsActionModal, setRewardsActionModal] = useState(false);
+
+  const getRewards = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get(`reward?campaignId=${campaignId}`);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Error while featching data");
+        return;
+      }
+      setLoading(false);
+      setRewards(response?.data?.rewards);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const deleteReward = async (id) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.delete(`reward/${id}`);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Error while deleting ");
+        return;
+      }
+      setLoading(false);
+      toast.success("Deleted ");
+      setOnAction(!onAction);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
+  };
+
+  useEffect(() => {
+    getRewards();
+  }, [onAction]);
 
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
+      <Loader loading={loading} />
       {rewardsActionModal && (
         <RewardsActionModal
           open={rewardsActionModal}
           onClose={() => setRewardsActionModal(false)}
           onAction={() => setOnAction(!onAction)}
           campaignId={campaignId}
+          type={modalType}
+          data={modalData}
         />
       )}
       <p className="text-xl font-bold">Add Rewards for Peoples </p>
@@ -34,33 +77,65 @@ const RewardSection = (props) => {
       </p>
 
       <Box className="flex flex-wrap justify-center gap-6">
-        {rewards.map(
-          (reward, index) =>
-            reward?.name && (
-              <Box
-                key={index}
-                className="w-full sm:w-[48%] md:w-[30%] p-4 rounded-lg border shadow-lg bg-white"
-              >
-                <Box className="mb-4">
-                  <p className="text-lg font-bold">{reward.name}</p>
-                  <p className="text-4xl font-bold text-fdPrimary">
-                    ${reward.price}
-                  </p>
-                  <ul className="list-disc pl-5 mt-2">
-                    {reward.features.map((feature, i) => (
-                      <li key={i} className="text-sm">
-                        {feature}
+        {rewards.map((reward, index) => (
+          <Box
+            key={index}
+            className="w-full sm:w-[48%] md:w-[30%] p-4 rounded-lg border shadow-lg bg-white"
+          >
+            <Box className="mb-4">
+              <p className="text-lg font-bold">{reward?.title}</p>
+              <p className="text-4xl font-bold text-fdPrimary">
+                ${reward?.price}
+              </p>
+              <ul className="list-disc pl-5 mt-2">
+                {reward?.features.map((feature, i) => {
+                  if (
+                    i === 0 &&
+                    typeof feature === "string" &&
+                    feature.includes(",")
+                  ) {
+                    return feature.split(",").map((item, subIndex) => (
+                      <li key={`${i}-${subIndex}`} className="text-sm">
+                        {item.trim()}{" "}
                       </li>
-                    ))}
-                  </ul>
-                </Box>
-              </Box>
-            )
-        )}
+                    ));
+                  }
+
+                  return (
+                    <li key={i} className="text-sm">
+                      {feature}
+                    </li>
+                  );
+                })}
+              </ul>
+            </Box>
+            <Box className="flex items-center">
+              <IconButton
+                color="error"
+                onClick={() => deleteReward(reward?._id)}
+              >
+                <MdDelete />
+              </IconButton>
+              <IconButton
+                color="black"
+                onClick={() => {
+                  setModalData(reward);
+                  setModalType("edit");
+                  setRewardsActionModal(true);
+                }}
+              >
+                <FaRegEdit />
+              </IconButton>
+            </Box>
+          </Box>
+        ))}
       </Box>
 
       <Button
-        onClick={() => setRewardsActionModal(true)}
+        onClick={() => {
+          setModalType("add");
+          setRewardsActionModal(true);
+        }}
         variant="contained"
         startIcon={<IoMdAdd />}
         sx={{
@@ -75,7 +150,7 @@ const RewardSection = (props) => {
           },
         }}
       >
-        {rewards[0].name ? "Edit" : "Add"} Rewards
+        Add Rewards
       </Button>
     </Box>
   );
