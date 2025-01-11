@@ -3,14 +3,14 @@ import React, { useEffect, useState } from "react";
 import Paginate from "../../components/Paginate";
 import TableMui from "../../components/TableMui";
 import { IoEyeOutline } from "react-icons/io5";
-import { FaRegEdit } from "react-icons/fa";
-import { FaRegTrashAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
 import apiClient from "../../api/apiClient";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const UserCampaign = () => {
+const Backed = () => {
   const [loading, setLoading] = useState(false);
+  const userId = useSelector((state) => state?.auth?.user?._id);
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [campaigns, setCampaigns] = useState([]);
@@ -18,7 +18,9 @@ const UserCampaign = () => {
   const getCampaigns = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get(`campaign?page=${page}&limit=10`);
+      const response = await apiClient.get(
+        `backer?createdBy=${userId}&page=${page}&limit=10`
+      );
       if (!response.ok) {
         setLoading(false);
         toast.error(response?.data?.message || "Failed to fetch campaigns");
@@ -26,10 +28,29 @@ const UserCampaign = () => {
       }
       setLoading(false);
       setCount(response?.data?.count);
-      setCampaigns(response?.data?.campaigns);
+      setCampaigns(response?.data?.backers);
     } catch (error) {
       setLoading(false);
       toast.error("Failed to fetch campaigns");
+    }
+  };
+
+  const handleViewCampaign = async (id) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get(`campaign?_id=${id}`);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Failed to fetch campaign");
+        return;
+      }
+      setLoading(false);
+      navigate(`/explore/${id}`, {
+        state: { active: response?.data?.campaigns[0] },
+      });
+    } catch (error) {
+      setLoading(false);
+      toast.error("Failed to fetch campaign");
     }
   };
 
@@ -39,7 +60,7 @@ const UserCampaign = () => {
 
   return (
     <Box className="p-4">
-      <p className="text-3xl font-bold">My Campains</p>
+      <p className="text-3xl font-bold">Backed Campains</p>
       <Box className="mt-4 bg-white border rounded-xl p-3">
         <TableMui
           loading={loading}
@@ -54,59 +75,54 @@ const UserCampaign = () => {
           }}
           th={{
             name: "Campaign Name",
-            category: "Category",
-            subCategory: "Sub Category",
-            startDate: "Start Date",
-            endDate: "End Date",
+            moneyPledged: "Money Pledged",
             funding: "Funding Required",
             funded: "Funded",
+            startDate: "Start Date",
+            endDate: "End Date",
             status: "Status",
-            backers: "Backers",
             action: "Action",
           }}
           td={campaigns}
           customFields={[
             {
-              name: "backers",
+              name: "name",
               data: (value, item) => {
-                return (
-                  <Button
-                    className="bg_primary p-10 "
-                    sx={{
-                      textTransform: "none",
-                      color: "white",
-                      padding: "10px",
-                      width: "150px",
-                      borderRadius: "50px",
-                    }}
-                  >
-                    Backers
-                  </Button>
-                );
+                return item?.campaign[0]?.name;
+              },
+            },
+            {
+              name: "moneyPledged",
+              data: (value, item) => {
+                return "$" + value;
               },
             },
             {
               name: "funding",
               data: (value, item) => {
-                return "$" + value;
+                return "$" + item?.campaign[0]?.funding;
               },
             },
             {
               name: "funded",
               data: (value, item) => {
-                return "$" + value;
+                return "$" + item?.campaign[0]?.funded;
               },
             },
             {
               name: "startDate",
               data: (value, item) => {
-                return new Date(value).toLocaleDateString();
+                return new Date(
+                  item?.campaign[0]?.startDate
+                ).toLocaleDateString();
               },
             },
             {
               name: "endDate",
               data: (value, item) => {
-                return new Date(value).toLocaleDateString();
+                return new Date(
+                  item?.campaign[0]?.endDate
+                ).toLocaleDateString();
               },
             },
             {
@@ -116,17 +132,20 @@ const UserCampaign = () => {
                   <Box
                     className="px-5 py-2 rounded-3xl text-white"
                     sx={{
-                      backgroundColor: value === "A" ? "#02ad1d" : "#e4812e",
+                      backgroundColor:
+                        item?.campaign[0]?.status === "A"
+                          ? "#02ad1d"
+                          : "#e4812e",
                     }}
                   >
                     <Typography>
-                      {value === "A"
+                      {item?.campaign[0]?.status === "A"
                         ? "Active"
-                        : value === "I"
+                        : item?.campaign[0]?.status === "I"
                         ? "Inactive"
-                        : value === "C"
+                        : item?.campaign[0]?.status === "C"
                         ? "Completed"
-                        : value === "UR"
+                        : item?.campaign[0]?.status === "UR"
                         ? "Under Review"
                         : "Failed"}
                     </Typography>
@@ -149,11 +168,7 @@ const UserCampaign = () => {
                     }}
                   >
                     <Button
-                      onClick={() =>
-                        navigate(`/explore/${item._id}`, {
-                          state: { active: item },
-                        })
-                      }
+                      onClick={() => handleViewCampaign(item?.campaign[0]?._id)}
                       sx={{
                         minWidth: 0,
                         padding: "5px",
@@ -162,39 +177,6 @@ const UserCampaign = () => {
                       }}
                     >
                       <IoEyeOutline size={20} />
-                    </Button>
-                    <Divider
-                      orientation="vertical"
-                      flexItem
-                      sx={{ marginX: 1, backgroundColor: "#e0e0e0" }}
-                    />
-                    <Button
-                      onClick={() =>
-                        navigate(`/user/edit-campaign/${item._id}`)
-                      }
-                      sx={{
-                        minWidth: 0,
-                        padding: "5px",
-                        borderRadius: "0%",
-                        color: "#5c5c5c",
-                      }}
-                    >
-                      <FaRegEdit size={20} />
-                    </Button>
-                    <Divider
-                      orientation="vertical"
-                      flexItem
-                      sx={{ marginX: 1, backgroundColor: "#e0e0e0" }}
-                    />
-                    <Button
-                      sx={{
-                        minWidth: 0,
-                        padding: "5px",
-                        borderRadius: "50%",
-                        color: "#f44336",
-                      }}
-                    >
-                      <FaRegTrashAlt size={20} />
                     </Button>
                   </Box>
                 </div>
@@ -208,4 +190,4 @@ const UserCampaign = () => {
   );
 };
 
-export default UserCampaign;
+export default Backed;

@@ -62,10 +62,10 @@ export default function TableMui({
               )}
             </TableBody>
           ) : (
-            <TableBody className="position-relative " sx={{ height: "100px" }}>
+            <TableBody className="relative " sx={{ height: "80px" }}>
               <div
-                className="text-center p-3 position-absolute translate-middle"
-                style={{ top: "50%", left: "50%" }}
+                className="text-center p-3 absolute translate-middle"
+                style={{ top: "0%", left: "50%" }}
               >
                 <CircularProgress />
               </div>

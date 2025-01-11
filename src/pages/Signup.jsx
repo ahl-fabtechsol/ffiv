@@ -152,7 +152,6 @@ const Signup = () => {
 
   const handleSubmit = async (values) => {
     setLoading(true);
-    console.log(values);
     try {
       const formData = new FormData();
       for (const key in values) {
