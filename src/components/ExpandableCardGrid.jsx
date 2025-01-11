@@ -179,10 +179,10 @@ export function ExpandableCardGrid({ cards }) {
                       {card?.createdBy?.firsName}
                     </motion.p>
                   </div>
-                  <div className="flex gap-2 items-center">
+                  {/* <div className="flex gap-2 items-center">
                     <CiHeart size={25} />
                     <IoShareOutline size={25} />
-                  </div>
+                  </div> */}
                 </div>
 
                 <motion.p className="font-bold text-xl text-ellipsis">

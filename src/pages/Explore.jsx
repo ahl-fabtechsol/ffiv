@@ -8,7 +8,6 @@ import { FaArrowUp } from "react-icons/fa";
 import { FaArrowDown } from "react-icons/fa";
 import useBreakpoint from "../hooks/UseBreakPoints";
 import { ExpandableCardGrid } from "../components/ExpandableCardGrid";
-import { cards } from "../lib/dummyData";
 import { Loader } from "../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../api/apiClient";

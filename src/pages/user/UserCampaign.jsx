@@ -1,5 +1,5 @@
 import { Box, Button, Divider, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Paginate from "../../components/Paginate";
 import TableMui from "../../components/TableMui";
 import { IoEyeOutline } from "react-icons/io5";
@@ -7,11 +7,40 @@ import { FaRegEdit } from "react-icons/fa";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { campaignsData } from "../../lib/dummyData";
 import EditCampaignModal from "../../modals/EditCampaignModal";
+import { Loader } from "../../components/customLoader/Loader";
+import toast from "react-hot-toast";
+import apiClient from "../../api/apiClient";
+import { data, useNavigate } from "react-router-dom";
 
 const UserCampaign = () => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [editCampaignModal, setEditCampaignModal] = useState(false);
+  const [campaigns, setCampaigns] = useState([]);
+  const [count, setCount] = useState(0);
+  const getCampaigns = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get(`campaign?page=${page}&limit=10`);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Failed to fetch campaigns");
+        return;
+      }
+      setLoading(false);
+      setCount(response?.data?.count);
+      setCampaigns(response?.data?.campaigns);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Failed to fetch campaigns");
+    }
+  };
+
+  useEffect(() => {
+    getCampaigns();
+  }, [page]);
+
   return (
     <Box className="p-4">
       {editCampaignModal && (
@@ -34,17 +63,42 @@ const UserCampaign = () => {
             bgcolor: "#7fc415",
           }}
           th={{
-            campaignName: "Campaign Name",
+            name: "Campaign Name",
             category: "Category",
             subCategory: "Sub Category",
             startDate: "Start Date",
             endDate: "End Date",
-            fundingRequired: "Funding Required",
+            funding: "Funding Required",
+            funded: "Funded",
             status: "Status",
             action: "Action",
           }}
-          td={campaignsData}
+          td={campaigns}
           customFields={[
+            {
+              name: "funding",
+              data: (value, item) => {
+                return "$" + value;
+              },
+            },
+            {
+              name: "funded",
+              data: (value, item) => {
+                return "$" + value;
+              },
+            },
+            {
+              name: "startDate",
+              data: (value, item) => {
+                return new Date(value).toLocaleDateString();
+              },
+            },
+            {
+              name: "endDate",
+              data: (value, item) => {
+                return new Date(value).toLocaleDateString();
+              },
+            },
             {
               name: "status",
               data: (value, item) => {
@@ -52,10 +106,20 @@ const UserCampaign = () => {
                   <Box
                     className="px-5 py-2 rounded-3xl text-white"
                     sx={{
-                      backgroundColor: value === "Live" ? "#e4812e" : "#02ad1d",
+                      backgroundColor: value === "A" ? "#02ad1d" : "#e4812e",
                     }}
                   >
-                    <Typography>{value}</Typography>
+                    <Typography>
+                      {value === "A"
+                        ? "Active"
+                        : value === "I"
+                        ? "Inactive"
+                        : value === "C"
+                        ? "Completed"
+                        : value === "UR"
+                        ? "Under Review"
+                        : "Failed"}
+                    </Typography>
                   </Box>
                 );
               },
@@ -75,6 +139,11 @@ const UserCampaign = () => {
                     }}
                   >
                     <Button
+                      onClick={() =>
+                        navigate(`/explore/${item._id}`, {
+                          state: { active: item },
+                        })
+                      }
                       sx={{
                         minWidth: 0,
                         padding: "5px",
@@ -90,7 +159,9 @@ const UserCampaign = () => {
                       sx={{ marginX: 1, backgroundColor: "#e0e0e0" }}
                     />
                     <Button
-                      onClick={() => setEditCampaignModal(true)}
+                      onClick={() =>
+                        navigate(`/user/edit-campaign/${item._id}`)
+                      }
                       sx={{
                         minWidth: 0,
                         padding: "5px",
@@ -122,7 +193,7 @@ const UserCampaign = () => {
           ]}
         />
       </Box>
-      <Paginate count={30} limit={10} onChange={setPage} />
+      <Paginate count={count} limit={10} onChange={setPage} />
     </Box>
   );
 };

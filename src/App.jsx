@@ -22,6 +22,8 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import Payment from "./pages/Payment";
 import SuccessPage from "./pages/SuccessPage";
 import CancelPage from "./pages/CancelPage";
+import EditCampaign from "./pages/user/EditCampaign";
+import BackedCampaigns from "./pages/BackedCampaigns";
 
 const App = () => {
   return (
@@ -47,6 +49,7 @@ const App = () => {
         <Route path="/user/notifications" element={<Notifications />} />
         <Route path="/user/create-campaign" element={<CreateCampaign />} />
         <Route path="/user/all-campaign" element={<UserCampaign />} />
+        <Route path="/user/edit-campaign/:id" element={<EditCampaign />} />
       </Route>
       <Route element={<Dashboardnav type="admin" />}>
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
