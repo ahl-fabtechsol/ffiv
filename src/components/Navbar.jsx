@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { IoMdMenu } from "react-icons/io";
 import { RxCross1 } from "react-icons/rx";
-import { FiSearch } from "react-icons/fi";
-import { IoIosAddCircleOutline } from "react-icons/io";
-import { IoSettingsOutline } from "react-icons/io5";
-import { Avatar, Input, Drawer } from "@mui/material";
+import { Avatar, Drawer } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { IoLogOutOutline } from "react-icons/io5";
 import { store } from "../redux/store";
@@ -17,6 +14,7 @@ const Navbar = ({ type }) => {
   const txtColor = type === "other" ? "text-black" : "text-white";
   const userImage = store?.getState()?.auth?.user?.profilePicture;
   const isLoggedIn = store?.getState()?.auth?.isLoggedIn;
+  const role = store?.getState()?.auth?.user?.role;
   const navigate = useNavigate();
   const toggleDrawer = (open) => {
     setOpenDrawer(open);
@@ -60,6 +58,15 @@ const Navbar = ({ type }) => {
               className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
             >
               Campaigns
+            </Link>
+          )}
+
+          {role === "AD" && (
+            <Link
+              to="/admin/dashboard"
+              className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
+            >
+              Admin
             </Link>
           )}
         </div>
@@ -128,6 +135,14 @@ const Navbar = ({ type }) => {
                 ) : (
                   <Link to="/campaign" className="text-white text-lg">
                     Campaigns
+                  </Link>
+                )}
+                {role === "AD" && (
+                  <Link
+                    to="/admin/dashboard"
+                    className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
+                  >
+                    Admin
                   </Link>
                 )}
               </nav>

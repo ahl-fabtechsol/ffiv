@@ -17,6 +17,8 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { SiWebmoney } from "react-icons/si";
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/authSlice";
+import { CiMoneyBill } from "react-icons/ci";
+import { IoSettingsOutline } from "react-icons/io5";
 
 const drawerWidth = 240;
 
@@ -38,6 +40,18 @@ const listItemData = [
     name: "create-campaign",
     link: `/user/create-campaign`,
     icon: <FaFlag className="text-xl" />,
+  },
+  {
+    label: "Backed Campains",
+    name: "backed",
+    link: "/user/backed",
+    icon: <CiMoneyBill className="text-xl" />,
+  },
+  {
+    label: "Setting",
+    name: "settings",
+    link: "user/setting",
+    icon: <IoSettingsOutline className="text-xl" />,
   },
   // {
   //   label: "Notifications",
