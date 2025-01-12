@@ -8,6 +8,9 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
 import apiClient from "../../api/apiClient";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import BackerActionModal from "../../modals/BackerActionModal";
+import UserChangeStatusModal from "../../modals/UserChangeStatusModal";
 
 const UserCampaign = () => {
   const [loading, setLoading] = useState(false);
@@ -15,10 +18,33 @@ const UserCampaign = () => {
   const [page, setPage] = useState(1);
   const [campaigns, setCampaigns] = useState([]);
   const [count, setCount] = useState(0);
+  const [showBackerModal, setShowBackerModal] = useState(false);
+  const userId = useSelector((state) => state?.auth?.user?._id);
+  const [campaignId, setCampaignId] = useState("");
+  const [changeStatusModal, setChangeStatusModal] = useState(false);
+  const [onAction, setOnAction] = useState(false);
+
+  const STATUS_COLORS = {
+    A: "#02ad1d", // Active - Green
+    I: "#e4812e", // Inactive - Orange
+    UR: "#fbc02d", // Under Review - Yellow
+    C: "#1976d2", // Completed - Blue
+    F: "#d32f2f", // Failed - Red
+  };
+
+  const statusLabel = {
+    A: "Active",
+    I: "Inactive",
+    UR: "Under Review",
+    C: "Completed",
+    F: "Failed",
+  };
   const getCampaigns = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get(`campaign?page=${page}&limit=10`);
+      const response = await apiClient.get(
+        `campaign?createdBy=${userId}&page=${page}&limit=10`
+      );
       if (!response.ok) {
         setLoading(false);
         toast.error(response?.data?.message || "Failed to fetch campaigns");
@@ -35,10 +61,25 @@ const UserCampaign = () => {
 
   useEffect(() => {
     getCampaigns();
-  }, [page]);
+  }, [page, onAction]);
 
   return (
     <Box className="p-4">
+      {showBackerModal && (
+        <BackerActionModal
+          open={showBackerModal}
+          onClose={() => setShowBackerModal(false)}
+          campainId={campaignId}
+        />
+      )}
+      {changeStatusModal && (
+        <UserChangeStatusModal
+          open={changeStatusModal}
+          onClose={() => setChangeStatusModal(false)}
+          campainId={campaignId}
+          onAction={() => setOnAction(!onAction)}
+        />
+      )}
       <p className="text-3xl font-bold">My Campains</p>
       <Box className="mt-4 bg-white border rounded-xl p-3">
         <TableMui
@@ -71,6 +112,10 @@ const UserCampaign = () => {
               data: (value, item) => {
                 return (
                   <Button
+                    onClick={() => {
+                      setCampaignId(item._id);
+                      setShowBackerModal(true);
+                    }}
                     className="bg_primary p-10 "
                     sx={{
                       textTransform: "none",
@@ -114,21 +159,22 @@ const UserCampaign = () => {
               data: (value, item) => {
                 return (
                   <Box
-                    className="px-5 py-2 rounded-3xl text-white"
+                    onClick={() => {
+                      if (value === "C" || value === "F" || value === "UR") {
+                        toast.error("You can't change status of this campaign");
+                        return;
+                      }
+                      setCampaignId(item._id);
+                      setChangeStatusModal(true);
+                    }}
+                    className="px-5 py-2 rounded-3xl text-white cursor-pointer "
                     sx={{
-                      backgroundColor: value === "A" ? "#02ad1d" : "#e4812e",
+                      backgroundColor: STATUS_COLORS[value] || "#9e9e9e",
+                      display: "inline-block",
                     }}
                   >
                     <Typography>
-                      {value === "A"
-                        ? "Active"
-                        : value === "I"
-                        ? "Inactive"
-                        : value === "C"
-                        ? "Completed"
-                        : value === "UR"
-                        ? "Under Review"
-                        : "Failed"}
+                      {statusLabel[value] || "Unknown Status"}
                     </Typography>
                   </Box>
                 );

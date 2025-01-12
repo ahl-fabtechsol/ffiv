@@ -9,7 +9,7 @@ function Header(props) {
   };
   return (
     <div>
-      <Navbar handleDrawerToggle={handleDrawerToggle} />
+      <Navbar handleDrawerToggle={handleDrawerToggle} type={props.type} />
       <SideNav
         mobileOpen={mobileOpen}
         handleDrawerToggle={() => handleDrawerToggle()}

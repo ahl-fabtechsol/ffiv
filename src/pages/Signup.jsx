@@ -189,8 +189,8 @@ const Signup = () => {
   return (
     <Box className="flex h-screen overflow-hidden">
       <Loader loading={loading} />
-      <Box className="w-full md:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-gray-50 overflow-y-auto">
-        <Box className="w-full p-8 shadow-lg bg-white rounded-lg">
+      <Box className="w-full md:w-1/2 flex items-center justify-center p-0 sm:p-12 bg-white sm:bg-gray-50 overflow-y-auto">
+        <Box className="w-full p-8 sm:shadow-lg bg-white rounded-lg">
           <h2 className="text-4xl font-bold text-center mb-8">Sign Up</h2>
           <Stepper
             activeStep={activeStep}

@@ -25,26 +25,51 @@ import CancelPage from "./pages/CancelPage";
 import EditCampaign from "./pages/user/EditCampaign";
 import Backed from "./pages/user/Backed";
 import Setting from "./pages/user/Setting";
+import Unauthorized from "./components/UnAuthorized";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
     <Routes>
       <Route path="/payment_success" element={<SuccessPage />} />
       <Route path="/payment_cancel" element={<CancelPage />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route element={<Layout type="home" />}>
         <Route path="/" element={<Home />} />
-        <Route path="/explore/:id" element={<ExploreDetail />} />
+
+        <Route
+          path="/explore/:id"
+          element={
+            <ProtectedRoute roles={["AD", "U", "M"]}>
+              <ExploreDetail />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/campaign" element={<Campaign />} />
       </Route>
       <Route element={<Layout type="other" />}>
-        <Route path="/explore" element={<Explore />} />
+        <Route
+          path="/explore"
+          element={
+            <ProtectedRoute roles={["AD", "U", "M"]}>
+              <Explore />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/payment" element={<Payment />} />
       </Route>
 
-      <Route element={<Dashboardnav type="user" />}>
+      <Route
+        element={
+          <ProtectedRoute roles={["AD", "M", "U"]}>
+            <Dashboardnav type="user" />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/user/dashboard" element={<Dashboard />} />
         <Route path="/user/messages" element={<Messages />} />
         <Route path="/user/notifications" element={<Notifications />} />
@@ -54,7 +79,13 @@ const App = () => {
         <Route path="/user/backed" element={<Backed />} />
         <Route path="/user/setting" element={<Setting />} />
       </Route>
-      <Route element={<Dashboardnav type="admin" />}>
+      <Route
+        element={
+          <ProtectedRoute roles={["AD"]}>
+            <Dashboardnav type="admin" />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/campaigns" element={<AdminAllCampaigns />} />

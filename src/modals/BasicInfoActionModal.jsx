@@ -178,7 +178,8 @@ const BasicInfoActionModal = (props) => {
                 <Box className="flex sm:flex-row flex-col gap-6 ">
                   <Box className="flex flex-col w-full">
                     <p className="text-lg font-semibold">Category</p>
-                    <FormControl
+
+                    <TextField
                       fullWidth
                       sx={{
                         "& label.Mui-focused": {
@@ -190,29 +191,20 @@ const BasicInfoActionModal = (props) => {
                           },
                         },
                       }}
-                    >
-                      <InputLabel id="campign-category">Category</InputLabel>
-                      <Select
-                        fullWidth
-                        value={values.category}
-                        name="category"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={errors.category ? true : false}
-                        helperText={errors.category}
-                        className=" bg-white"
-                        labelId="campaign-category"
-                        label="Category"
-                      >
-                        <MenuItem value={10}>Ten</MenuItem>
-                        <MenuItem value={20}>Twenty</MenuItem>
-                        <MenuItem value={30}>Thirty</MenuItem>
-                      </Select>
-                    </FormControl>
+                      value={values.category}
+                      name="category"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={errors.category ? true : false}
+                      helperText={errors.category}
+                      className=" bg-white"
+                      labelId="campaign-category"
+                      label="Category"
+                    />
                   </Box>
                   <Box className="flex flex-col w-full">
                     <p className="text-lg font-semibold">Sub Category</p>
-                    <FormControl
+                    <TextField
                       fullWidth
                       sx={{
                         "& label.Mui-focused": {
@@ -224,27 +216,16 @@ const BasicInfoActionModal = (props) => {
                           },
                         },
                       }}
-                    >
-                      <InputLabel id="campign-subCategory">
-                        Sub Category
-                      </InputLabel>
-                      <Select
-                        value={values.subCategory}
-                        name="subCategory"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={errors.subCategory ? true : false}
-                        helperText={errors.subCategory}
-                        fullWidth
-                        className=" bg-white"
-                        labelId="campaign-subCategory"
-                        label="Sub Category"
-                      >
-                        <MenuItem value={10}>Ten</MenuItem>
-                        <MenuItem value={20}>Twenty</MenuItem>
-                        <MenuItem value={30}>Thirty</MenuItem>
-                      </Select>
-                    </FormControl>
+                      value={values.subCategory}
+                      name="subCategory"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={errors.subCategory ? true : false}
+                      helperText={errors.subCategory}
+                      className=" bg-white"
+                      labelId="campaign-subCategory"
+                      label="Sub Category"
+                    />
                   </Box>
                 </Box>
                 <Box className="flex flex-col gap-2">
