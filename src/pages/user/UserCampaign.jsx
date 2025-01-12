@@ -10,6 +10,7 @@ import apiClient from "../../api/apiClient";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import BackerActionModal from "../../modals/BackerActionModal";
+import UserChangeStatusModal from "../../modals/UserChangeStatusModal";
 
 const UserCampaign = () => {
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,8 @@ const UserCampaign = () => {
   const [showBackerModal, setShowBackerModal] = useState(false);
   const userId = useSelector((state) => state?.auth?.user?._id);
   const [campaignId, setCampaignId] = useState("");
+  const [changeStatusModal, setChangeStatusModal] = useState(false);
+  const [onAction, setOnAction] = useState(false);
 
   const STATUS_COLORS = {
     A: "#02ad1d", // Active - Green
@@ -58,7 +61,7 @@ const UserCampaign = () => {
 
   useEffect(() => {
     getCampaigns();
-  }, [page]);
+  }, [page, onAction]);
 
   return (
     <Box className="p-4">
@@ -67,6 +70,14 @@ const UserCampaign = () => {
           open={showBackerModal}
           onClose={() => setShowBackerModal(false)}
           campainId={campaignId}
+        />
+      )}
+      {changeStatusModal && (
+        <UserChangeStatusModal
+          open={changeStatusModal}
+          onClose={() => setChangeStatusModal(false)}
+          campainId={campaignId}
+          onAction={() => setOnAction(!onAction)}
         />
       )}
       <p className="text-3xl font-bold">My Campains</p>
@@ -148,7 +159,15 @@ const UserCampaign = () => {
               data: (value, item) => {
                 return (
                   <Box
-                    className="px-5 py-2 rounded-3xl text-white "
+                    onClick={() => {
+                      if (value === "C" || value === "F" || value === "UR") {
+                        toast.error("You can't change status of this campaign");
+                        return;
+                      }
+                      setCampaignId(item._id);
+                      setChangeStatusModal(true);
+                    }}
+                    className="px-5 py-2 rounded-3xl text-white cursor-pointer "
                     sx={{
                       backgroundColor: STATUS_COLORS[value] || "#9e9e9e",
                       display: "inline-block",

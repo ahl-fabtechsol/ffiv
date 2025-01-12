@@ -55,8 +55,8 @@ const Login = () => {
         <Box className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50"></Box>
       </Box>
 
-      <Box className="w-full sm:w-1/2 flex items-center justify-center p-12 bg-gray-50">
-        <Box className="max-w-md w-full p-8 shadow-lg bg-white rounded-lg">
+      <Box className="w-full sm:w-1/2 flex items-center justify-center sm:p-12 p-0 bg-white  sm:bg-gray-50">
+        <Box className="max-w-md w-full p-8 sm:shadow-lg bg-white rounded-lg">
           <h2 className="text-4xl font-bold text-center mb-8">Welcome Back</h2>
           <p className="text-center text-gray-600 mb-10">
             Sign in to your account

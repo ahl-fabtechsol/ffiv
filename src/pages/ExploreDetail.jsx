@@ -19,6 +19,7 @@ export default function Page() {
   const [faqs, setFaqs] = useState([]);
   const [rewards, setRewards] = useState([]);
   const [projectTimelines, setProjectTimelines] = useState([]);
+  const [backers, setBackers] = useState([]);
   const navigate = useNavigate();
 
   const getTeamData = async () => {
@@ -89,11 +90,29 @@ export default function Page() {
     }
   };
 
+  const getBackers = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get(`backer?campaignId=${id}`);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Something went wrong");
+        return;
+      }
+      setLoading(false);
+      setBackers(response?.data?.backers);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+    }
+  };
+
   useEffect(() => {
     getTeamData();
     getFaqs();
     getRewards();
     getProjectTimelines();
+    getBackers();
   }, []);
 
   return (
@@ -174,13 +193,13 @@ export default function Page() {
         </Box>
       </Box>
 
-      {/* <Box className="p-10 ">
+      <Box className="p-10 ">
         <p className="text-3xl font-bold text-center ">
           What Backers Are Saying
         </p>
 
-        <AnimatedTestimonials testimonials={testimonials} autoplay={true} />
-      </Box> */}
+        <AnimatedTestimonials backers={backers} autoplay={true} />
+      </Box>
 
       <Box className="p-10 ">
         <FaqAccordion faqs={faqs} />

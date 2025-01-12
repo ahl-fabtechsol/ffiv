@@ -45,21 +45,21 @@ const Navbar = ({ type }) => {
             </Link>
           </div>
 
-          {isLoggedIn ? (
+          {isLoggedIn && (
             <Link
               to="/explore"
               className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
             >
               Explore
             </Link>
-          ) : (
-            <Link
-              to="/campaign"
-              className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
-            >
-              Campaigns
-            </Link>
           )}
+
+          <Link
+            to="/campaign"
+            className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
+          >
+            Campaigns
+          </Link>
 
           {role === "AD" && (
             <Link
@@ -128,20 +128,16 @@ const Navbar = ({ type }) => {
                   FundFiesta
                 </Link>
 
-                {isLoggedIn ? (
+                {isLoggedIn && (
                   <Link to="/explore" className="text-white text-lg">
                     Explore
                   </Link>
-                ) : (
-                  <Link to="/campaign" className="text-white text-lg">
-                    Campaigns
-                  </Link>
                 )}
+                <Link to="/campaign" className="text-white text-lg">
+                  Campaigns
+                </Link>
                 {role === "AD" && (
-                  <Link
-                    to="/admin/dashboard"
-                    className={`${txtColor} hover:text-fdPrimary hidden sm:block`}
-                  >
+                  <Link to="/admin/dashboard" className="text-white text-lg">
                     Admin
                   </Link>
                 )}
@@ -164,7 +160,6 @@ const Navbar = ({ type }) => {
                     </Avatar>
                     <IoLogOutOutline
                       onClick={handleLogout}
-                      color={type === "home" ? "white" : "black"}
                       size={23}
                       className="cursor-pointer hover:text-gray-300"
                       style={{ marginBottom: "0.5px" }}
