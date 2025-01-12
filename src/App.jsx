@@ -25,7 +25,7 @@ import CancelPage from "./pages/CancelPage";
 import EditCampaign from "./pages/user/EditCampaign";
 import Backed from "./pages/user/Backed";
 import Setting from "./pages/user/Setting";
-import Unauthorized from "./components/UnAuthorized";
+import Unauthorized from "./components/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
