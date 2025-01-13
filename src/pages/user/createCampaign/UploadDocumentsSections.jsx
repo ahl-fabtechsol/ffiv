@@ -4,12 +4,10 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import UploadDocumentsActionModal from "../../../modals/UploadDocumentsActionModal";
 import toast from "react-hot-toast";
 import apiClient from "../../../api/apiClient";
-import { Loader } from "../../../components/customLoader/Loader";
 import { MdDelete } from "react-icons/md";
 
 const UploadDocumentsSections = (props) => {
-  const { campaignId } = props;
-  const [loading, setLoading] = useState(false);
+  const { campaignId, setLoading } = props;
   const [onAction, setOnAction] = useState(false);
   const [imageSrc, setImageSrc] = useState(null);
   const [videoSrc, setVideoSrc] = useState(null);
@@ -71,7 +69,6 @@ const UploadDocumentsSections = (props) => {
 
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
-      <Loader loading={loading} />
       {uploadDocumentsActionModal && (
         <UploadDocumentsActionModal
           open={uploadDocumentsActionModal}
@@ -80,6 +77,7 @@ const UploadDocumentsSections = (props) => {
           type={modalType}
           campaignId={campaignId}
           data={modalData}
+          setLoading={setLoading}
         />
       )}
       <p className="text-xl font-bold">Upload Doccuments </p>

@@ -10,7 +10,7 @@ import { store } from "./redux/store.js";
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <BrowserRouter>
-      <Toaster position="top-center" containerStyle={{ zIndex: 100000 }} />
+      <Toaster position="top-center" containerStyle={{ zIndex: 130000 }} />
       <ScrollToTop />
       <App />
     </BrowserRouter>

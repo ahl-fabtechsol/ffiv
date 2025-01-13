@@ -1,22 +1,13 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
-import {
-  FormControl,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from "@mui/material";
+import { IconButton, TextField } from "@mui/material";
 import { MdCancel } from "react-icons/md";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { Formik, Form, ErrorMessage } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import dayjs from "dayjs";
-import { useState } from "react";
-import { Loader } from "../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../api/apiClient";
 
@@ -51,8 +42,7 @@ const style = {
 };
 
 const BasicInfoActionModal = (props) => {
-  const { type, data } = props;
-  const [loading, setLoading] = useState(false);
+  const { type, data, setLoading } = props;
   const handleSave = (values) => {
     props.onSave(values);
   };
@@ -112,7 +102,6 @@ const BasicInfoActionModal = (props) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <Loader loading={loading} />
         <Box className="flex justify-between items-center">
           <p className="text-xl font-bold">
             {type === "edit" ? "Edit" : "Add"} Basic Info

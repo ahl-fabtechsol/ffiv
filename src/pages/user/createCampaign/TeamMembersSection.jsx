@@ -9,8 +9,7 @@ import { FaRegEdit } from "react-icons/fa";
 import apiClient from "../../../api/apiClient";
 
 const TeamMembersSection = (props) => {
-  const { campaignId } = props;
-  const [loading, setLoading] = useState(false);
+  const { campaignId, setLoading } = props;
   const [modalType, setModalType] = useState("");
   const [teamMembersActionModal, setTeamMembersActionModal] = useState(false);
   const [onAction, setOnAction] = useState(false);
@@ -70,7 +69,6 @@ const TeamMembersSection = (props) => {
 
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
-      <Loader loading={loading} />
       {teamMembersActionModal && (
         <TeamMembersActionModal
           open={teamMembersActionModal}
@@ -79,6 +77,7 @@ const TeamMembersSection = (props) => {
           campaignId={campaignId}
           type={modalType}
           data={modalData}
+          setLoading={setLoading}
         />
       )}
       <p className="text-xl font-bold">Tell Us About Your Team Members </p>

@@ -6,7 +6,6 @@ import { MdCancel } from "react-icons/md";
 import VideoUpload from "../components/VideoUpload";
 import ImageUpload from "../components/ImageUpload";
 import { useEffect, useState } from "react";
-import { Loader } from "../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../api/apiClient";
 import axios from "axios";
@@ -42,10 +41,9 @@ const style = {
 };
 
 const UploadDocumentsActionModal = (props) => {
-  const { type, data, campaignId } = props;
+  const { type, data, campaignId, setLoading } = props;
   const [videoFile, setVideoFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
-  const [loading, setLoading] = useState(false);
   const handleSave = async () => {
     if (!videoFile || !imageFile) {
       toast.error("Both and image and video are required");
@@ -123,7 +121,6 @@ const UploadDocumentsActionModal = (props) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <Loader loading={loading} />
         <Box className="flex justify-between items-center">
           <p className="text-xl font-bold">
             {type === "edit" ? "Edit" : "Upload"} Doccuments
