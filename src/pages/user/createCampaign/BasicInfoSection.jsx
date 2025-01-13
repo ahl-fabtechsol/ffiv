@@ -2,13 +2,11 @@ import { Box, Button } from "@mui/material";
 import React, { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import BasicInfoActionModal from "../../../modals/BasicInfoActionModal";
-import { Loader } from "../../../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../../../api/apiClient";
 
 const BasicInfoSection = (props) => {
-  const { setCampaignId } = props;
-  const [loading, setLoading] = useState(false);
+  const { setCampaignId, setLoading } = props;
   const [basicInfoActionModal, setBasicInfoActionModal] = useState(false);
   const [modalType, setModalType] = useState("");
   const [formData, setFormData] = useState(null);
@@ -48,7 +46,6 @@ const BasicInfoSection = (props) => {
 
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
-      <Loader loading={loading} />
       {basicInfoActionModal && (
         <BasicInfoActionModal
           open={basicInfoActionModal}
@@ -56,6 +53,7 @@ const BasicInfoSection = (props) => {
           onSave={handleOnSave}
           data={formData}
           type={modalType}
+          setLoading={setLoading}
         />
       )}
       <p className="text-xl font-bold">Add Basic Info </p>

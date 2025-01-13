@@ -7,11 +7,14 @@ import ProjectTimeLineSection from "./createCampaign/ProjectTimeLineSection";
 import RewardSection from "./createCampaign/RewardSection";
 import { useParams } from "react-router-dom";
 import EditBasicInfoSection from "./createCampaign/EditBasicInfoSection";
+import { Loader } from "../../components/customLoader/Loader";
 
 const EditCampaign = () => {
   const { id } = useParams();
+  const [loading, setLoading] = useState(false);
   return (
     <Box className="p-8 flex flex-col gap-8">
+      <Loader loading={loading} />
       <Box className="flex flex-col gap-3">
         <p className="text-3xl font-bold">Edit Campaign</p>
         <p className="font-extralight text-sm">
@@ -23,13 +26,13 @@ const EditCampaign = () => {
           numquam, aliquid rem. Officiis nobis illo pariatur tenetur qui?
         </p>
       </Box>
-      <EditBasicInfoSection campaignId={id} />
+      <EditBasicInfoSection campaignId={id} setLoading={setLoading} />
 
-      <UploadDocumentsSections campaignId={id} />
-      <TeamMembersSection campaignId={id} />
-      <FaqsSection campaignId={id} />
-      <ProjectTimeLineSection campaignId={id} />
-      <RewardSection campaignId={id} />
+      <UploadDocumentsSections campaignId={id} setLoading={setLoading} />
+      <TeamMembersSection campaignId={id} setLoading={setLoading} />
+      <FaqsSection campaignId={id} setLoading={setLoading} />
+      <ProjectTimeLineSection campaignId={id} setLoading={setLoading} />
+      <RewardSection campaignId={id} setLoading={setLoading} />
     </Box>
   );
 };

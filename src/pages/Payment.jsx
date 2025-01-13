@@ -215,32 +215,63 @@ const Payment = () => {
             <p className="text-4xl font-bold text-primary mb-4">
               ${reward?.price}
             </p>
+
             <ul className="space-y-2">
-              {reward?.features.map((feature, i) => (
-                <li key={i} className="flex items-center text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-primary mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  {feature}
-                </li>
-              ))}
+              {reward?.features.map((feature, i) => {
+                if (
+                  i === 0 &&
+                  typeof feature === "string" &&
+                  feature.includes(",")
+                ) {
+                  return feature.split(",").map((item, subIndex) => (
+                    <li
+                      key={`${i}-${subIndex}`}
+                      className="flex items-center text-gray-600"
+                    >
+                      <svg
+                        className="w-5 h-5 text-primary mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      {item.trim()}
+                    </li>
+                  ));
+                }
+
+                return (
+                  <li key={i} className="flex items-center text-gray-600">
+                    <svg
+                      className="w-5 h-5 text-primary mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {feature}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
       </Box>
 
-      {/* Custom Payment Option */}
       <Box className="p-6 bg-gray-50 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           Or Enter a Custom Amount:
@@ -252,7 +283,7 @@ const Payment = () => {
           value={customAmount}
           onChange={(e) => {
             setCustomAmount(e.target.value);
-            setSelectedReward(null); // Deselect reward when entering a custom amount
+            setSelectedReward(null);
           }}
         />
       </Box>

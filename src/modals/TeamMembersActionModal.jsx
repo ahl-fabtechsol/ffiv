@@ -8,7 +8,6 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import imageCompression from "browser-image-compression";
 import { useEffect, useState } from "react";
-import { Loader } from "../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../api/apiClient";
 
@@ -43,9 +42,8 @@ const style = {
 };
 
 const TeamMembersActionModal = (props) => {
-  const { campaignId, type, data } = props;
+  const { campaignId, type, data, setLoading } = props;
   const [previewUrl, setPreviewUrl] = useState("");
-  const [loading, setLoading] = useState(false);
   const compressImage = async (imageFile) => {
     const options = {
       maxSizeMB: 3,
@@ -164,7 +162,6 @@ const TeamMembersActionModal = (props) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <Loader loading={loading} />
         <Box className="flex justify-between items-center">
           <p className="text-xl font-bold">
             {type === "edit" ? "Edit" : "Add"} Team Members

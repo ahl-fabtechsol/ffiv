@@ -2,18 +2,16 @@ import { Box, Button, IconButton } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import FaqsActionModal from "../../../modals/FaqsActionModal";
-import { Loader } from "../../../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../../../api/apiClient";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 
 const FaqsSection = (props) => {
-  const { campaignId } = props;
+  const { campaignId, setLoading } = props;
   const [onAction, setOnAction] = useState(false);
   const [faqs, setFaqs] = useState(null);
   const [faqsActionModal, setFaqsActionModal] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState(null);
 
@@ -57,7 +55,6 @@ const FaqsSection = (props) => {
 
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
-      <Loader loading={loading} />
       {faqsActionModal && (
         <FaqsActionModal
           open={faqsActionModal}
@@ -66,6 +63,7 @@ const FaqsSection = (props) => {
           campaignId={campaignId}
           type={modalType}
           data={modalData}
+          setLoading={setLoading}
         />
       )}
       <p className="text-xl font-bold">Add Faqs </p>

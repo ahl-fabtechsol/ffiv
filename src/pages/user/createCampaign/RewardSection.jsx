@@ -2,15 +2,13 @@ import { Box, Button, IconButton } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import RewardsActionModal from "../../../modals/RewardsActionModal";
-import { Loader } from "../../../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../../../api/apiClient";
 import { MdDelete } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 
 const RewardSection = (props) => {
-  const { campaignId } = props;
-  const [loading, setLoading] = useState(false);
+  const { campaignId, setLoading } = props;
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState(null);
   const [onAction, setOnAction] = useState(false);
@@ -58,7 +56,6 @@ const RewardSection = (props) => {
 
   return (
     <Box className="  flex flex-col gap-6 bg-white rounded-lg border p-4">
-      <Loader loading={loading} />
       {rewardsActionModal && (
         <RewardsActionModal
           open={rewardsActionModal}
@@ -67,6 +64,7 @@ const RewardSection = (props) => {
           campaignId={campaignId}
           type={modalType}
           data={modalData}
+          setLoading={setLoading}
         />
       )}
       <p className="text-xl font-bold">Add Rewards for Peoples </p>

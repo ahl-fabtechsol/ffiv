@@ -38,7 +38,7 @@ const Login = () => {
           isLoggedIn: true,
         })
       );
-      toast.success("Logged in successfully");
+
       navigate("/");
     } catch (error) {
       setLoading(false);

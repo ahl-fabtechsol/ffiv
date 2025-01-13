@@ -3,7 +3,6 @@ import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import { IconButton, TextField } from "@mui/material";
 import { MdCancel } from "react-icons/md";
-import { Loader } from "../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../api/apiClient";
 import { Formik, Form } from "formik";
@@ -41,8 +40,7 @@ const style = {
 };
 
 const RewardsActionModal = (props) => {
-  const { campaignId, type, data } = props;
-  const [loading, setLoading] = useState(false);
+  const { campaignId, type, data, setLoading } = props;
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required("Title is Required"),
@@ -98,7 +96,6 @@ const RewardsActionModal = (props) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <Loader loading={loading} />
         <Box className="flex justify-between items-center">
           <p className="text-xl font-bold">
             {type === "edit" ? "Edit" : "Add"} Rewards
