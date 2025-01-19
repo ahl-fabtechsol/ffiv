@@ -96,7 +96,7 @@ const adminListItemData = [
   //   label: "Notifications",
   //   name: "notifications",
   //   link: `/admin/notifications`,
-  //   icon: <IoMdNotificationsOutline className="text-xl" />,
+
   // },
   // {
   //   label: "Messages",
