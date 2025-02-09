@@ -25,11 +25,11 @@ const UserCampaign = () => {
   const [onAction, setOnAction] = useState(false);
 
   const STATUS_COLORS = {
-    A: "#02ad1d", // Active - Green
-    I: "#e4812e", // Inactive - Orange
-    UR: "#fbc02d", // Under Review - Yellow
-    C: "#1976d2", // Completed - Blue
-    F: "#d32f2f", // Failed - Red
+    A: "#02ad1d",
+    I: "#e4812e",
+    UR: "#fbc02d",
+    C: "#1976d2",
+    F: "#d32f2f",
   };
 
   const statusLabel = {
