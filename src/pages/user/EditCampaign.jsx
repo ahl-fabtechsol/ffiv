@@ -23,7 +23,7 @@ const EditCampaign = () => {
           Quidem, assumenda fuga. Quis placeat quae ad laudantium necessitatibus
           hic, nostrum explicabo dolorum quos. Dolorem quo dignissimos
           consequuntur perferendis, ut, nulla nam praesentium cupiditate omnis
-          numquam, aliquid rem. Officiis nobis illo pariatur tenetur qui?
+          numquam, aliquid rem. Officiis nobisui?
         </p>
       </Box>
       <EditBasicInfoSection campaignId={id} setLoading={setLoading} />
