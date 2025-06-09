@@ -1,114 +1,158 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.9;
 
-contract Crowdfunding {
+contract SimpleCrowdfund {
     struct Campaign {
-        address payable creator;
-        string title;
-        string description;
-        string image; 
-        string video; 
-        uint256 goal;
-        uint256 deadline;
-        uint256 fundsRaised;
-        bool withdrawn;
-        mapping(address => uint256) donations;
+        address payable creator;        // The address of the person who created the campaign
+        string title;                   // Title of the campaign
+        string description;             // Detailed description of the campaign
+        uint256 goalAmount;             // The target amount to be raised, in wei
+        uint256 deadline;               // Unix timestamp representing the funding deadline
+        uint256 totalRaised;            // The total amount of Ether raised so far
+        mapping(address => uint256) contributions; // Tracks Ether contributed by each address
+        bool goalAchievedAndWithdrawn;  // True if the goal was met and funds withdrawn by creator
+        bool exists;                    // True if a campaign with this ID has been created
     }
 
-    mapping(uint256 => Campaign) public campaigns;
-    uint256 public campaignCount;
+    mapping(uint256 => Campaign) public campaigns; // Stores all campaigns by their ID
+    uint256 public campaignIDCounter; // A counter to generate unique campaign IDs
 
-    event CampaignCreated(
-        uint256 indexed campaignId,
-        address indexed creator,
-        string title,
-        uint256 goal,
-        uint256 deadline
-    );
-    event DonationReceived(uint256 indexed campaignId, address indexed donor, uint256 amount);
+    // Events to notify off-chain applications of important actions
+    event CampaignCreated(uint256 indexed id, address indexed creator, string title, uint256 goalAmount, uint256 deadline);
+    event ContributionMade(uint256 indexed campaignId, address indexed contributor, uint256 amount);
     event FundsWithdrawn(uint256 indexed campaignId, address indexed creator, uint256 amount);
+    // Optional: event FundsReclaimed(uint256 indexed campaignId, address indexed contributor, uint256 amount);
 
-    modifier onlyCreator(uint256 _campaignId) {
-        require(msg.sender == campaigns[_campaignId].creator, "Not campaign creator");
+    // Modifiers to enforce conditions on function execution
+    modifier campaignExists(uint256 _id) {
+        require(campaigns[_id].exists, "Campaign does not exist.");
         _;
     }
 
-    function createCampaign(
-        string memory _title,
-        string memory _description,
-        string memory _image,
-        string memory _video,
-        uint256 _goal,
-        uint256 _duration
-    ) external {
-        require(_goal > 0, "Goal must be greater than 0");
-        require(_duration > 0, "Duration must be greater than 0");
+    modifier onlyCampaignCreator(uint256 _id) {
+        require(campaigns[_id].creator == msg.sender, "Only campaign creator can call this.");
+        _;
+    }
 
-        campaignCount++;
-        Campaign storage newCampaign = campaigns[campaignCount];
-        newCampaign.creator = payable(msg.sender);
+    modifier beforeDeadline(uint256 _id) {
+        require(block.timestamp < campaigns[_id].deadline, "Deadline has passed.");
+        _;
+    }
+
+     modifier afterDeadline(uint256 _id) {
+        require(block.timestamp >= campaigns[_id].deadline, "Deadline not yet passed.");
+        _;
+    }
+
+    /**
+     * @dev Creates a new crowdfunding campaign.
+     * @param _title The title of the campaign.
+     * @param _description A description of the campaign.
+     * @param _goalAmount The funding goal in wei.
+     * @param _durationInDays The duration of the campaign in days.
+     */
+    function createCampaign(string memory _title, string memory _description, uint256 _goalAmount, uint256 _durationInDays) public {
+        require(_goalAmount > 0, "Goal amount must be greater than zero.");
+        require(_durationInDays > 0, "Duration must be greater than zero.");
+
+        uint256 deadlineTimestamp = block.timestamp + (_durationInDays * 1 days); // Solidity time units
+        campaignIDCounter++; // Increment for a new unique ID
+        
+        Campaign storage newCampaign = campaigns[campaignIDCounter];
+        newCampaign.creator = payable(msg.sender); // The caller is the creator
         newCampaign.title = _title;
         newCampaign.description = _description;
-        newCampaign.image = _image;
-        newCampaign.video = _video;
-        newCampaign.goal = _goal;
-        newCampaign.deadline = block.timestamp + _duration;
-        newCampaign.fundsRaised = 0;
-        newCampaign.withdrawn = false;
+        newCampaign.goalAmount = _goalAmount;
+        newCampaign.deadline = deadlineTimestamp;
+        newCampaign.exists = true; // Mark this campaign ID as existing
 
-        emit CampaignCreated(campaignCount, msg.sender, _title, _goal, newCampaign.deadline);
+        emit CampaignCreated(campaignIDCounter, msg.sender, _title, _goalAmount, deadlineTimestamp);
     }
 
-    function donate(uint256 _campaignId) external payable {
-        Campaign storage campaign = campaigns[_campaignId];
-        require(block.timestamp < campaign.deadline, "Campaign has ended");
-        require(msg.value > 0, "Donation must be greater than 0");
+    /**
+     * @dev Allows users to contribute Ether to a campaign.
+     * @param _id The ID of the campaign to contribute to.
+     */
+    function contribute(uint256 _id) public payable campaignExists(_id) beforeDeadline(_id) {
+        require(msg.value > 0, "Contribution must be greater than zero."); // msg.value is the Ether sent
+        Campaign storage campaign = campaigns[_id];
+        require(!campaign.goalAchievedAndWithdrawn, "Campaign funds already withdrawn by creator.");
 
-        campaign.fundsRaised += msg.value;
-        campaign.donations[msg.sender] += msg.value;
+        campaign.contributions[msg.sender] += msg.value;
+        campaign.totalRaised += msg.value;
 
-        emit DonationReceived(_campaignId, msg.sender, msg.value);
+        emit ContributionMade(_id, msg.sender, msg.value);
     }
 
-    function withdrawFunds(uint256 _campaignId) external onlyCreator(_campaignId) {
-        Campaign storage campaign = campaigns[_campaignId];
-        require(block.timestamp > campaign.deadline, "Campaign is still active");
-        require(campaign.fundsRaised >= campaign.goal, "Funding goal not reached");
-        require(!campaign.withdrawn, "Funds already withdrawn");
+    /**
+     * @dev Allows the campaign creator to withdraw funds if the goal is met and the deadline has passed.
+     * @param _id The ID of the campaign from which to withdraw funds.
+     */
+    function withdrawFunds(uint256 _id) public campaignExists(_id) onlyCampaignCreator(_id) afterDeadline(_id) {
+        Campaign storage campaign = campaigns[_id];
+        require(campaign.totalRaised >= campaign.goalAmount, "Funding goal not reached.");
+        require(!campaign.goalAchievedAndWithdrawn, "Funds already withdrawn.");
 
-        uint256 amount = campaign.fundsRaised;
-        campaign.withdrawn = true;
-        payable(msg.sender).transfer(amount);
+        campaign.goalAchievedAndWithdrawn = true; // Mark as withdrawn (Checks-Effects-Interactions pattern)
+        uint256 amountToWithdraw = campaign.totalRaised;
+        
+        // Transfer funds to the creator
+        (bool success, ) = campaign.creator.call{value: amountToWithdraw}(""); // Low-level call to send Ether
+        require(success, "Failed to send Ether to creator.");
 
-        emit FundsWithdrawn(_campaignId, msg.sender, amount);
+        emit FundsWithdrawn(_id, msg.sender, amountToWithdraw);
     }
 
-    function getCampaign(uint256 _campaignId)
-        external
-        view
+    /*
+    // Optional: Function for contributors to reclaim funds if goal not met after deadline.
+    // This adds complexity and is suitable as an extension if time permits.
+    function reclaimContribution(uint256 _id) public campaignExists(_id) afterDeadline(_id) {
+        Campaign storage campaign = campaigns[_id];
+        require(campaign.totalRaised < campaign.goalAmount, "Funding goal was reached, cannot reclaim.");
+        require(campaign.contributions[msg.sender] > 0, "No contribution to reclaim or already reclaimed.");
+
+        uint256 amountToReclaim = campaign.contributions[msg.sender];
+        campaign.contributions[msg.sender] = 0; // Prevent re-entrancy and double reclaim
+
+        (bool success, ) = payable(msg.sender).call{value: amountToReclaim}("");
+        require(success, "Failed to send Ether back to contributor.");
+        
+        emit FundsReclaimed(_id, msg.sender, amountToReclaim);
+    }
+    */
+
+    /**
+     * @dev Retrieves details of a specific campaign.
+     * @param _id The ID of the campaign.
+     * @return creator The address of the campaign creator.
+     * @return title The title of the campaign.
+     * @return description The description of the campaign.
+     * @return goalAmount The funding goal.
+     * @return deadline The campaign deadline.
+     * @return totalRaised The total amount raised.
+     * @return isWithdrawn Whether funds have been withdrawn.
+     */
+    function getCampaignDetails(uint256 _id) public view campaignExists(_id) 
         returns (
-            address creator,
-            string memory title,
-            string memory description,
-            string memory image,
-            string memory video,
-            uint256 goal,
-            uint256 deadline,
-            uint256 fundsRaised,
-            bool withdrawn
-        )
-    {
-        Campaign storage campaign = campaigns[_campaignId];
-        return (
-            campaign.creator,
-            campaign.title,
-            campaign.description,
-            campaign.image,
-            campaign.video,
-            campaign.goal,
-            campaign.deadline,
-            campaign.fundsRaised,
-            campaign.withdrawn
-        );
+            address creator, 
+            string memory title, 
+            string memory description, 
+            uint256 goalAmount, 
+            uint256 deadline, 
+            uint256 totalRaised, 
+            bool isWithdrawn
+        ) {
+        Campaign storage c = campaigns[_id];
+        return (c.creator, c.title, c.description, c.goalAmount, c.deadline, c.totalRaised, c.goalAchievedAndWithdrawn);
+    }
+
+    /**
+     * @dev Retrieves the amount contributed by a specific address to a campaign.
+     * @param _id The ID of the campaign.
+     * @param _contributor The address of the contributor.
+     * @return The amount contributed by the _contributor to campaign _id.
+     */
+    function getContribution(uint256 _id, address _contributor) public view campaignExists(_id) returns (uint256) {
+        return campaigns[_id].contributions[_contributor];
     }
 }
