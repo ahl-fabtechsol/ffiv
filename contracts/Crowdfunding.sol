@@ -3,27 +3,24 @@ pragma solidity ^0.8.9;
 
 contract SimpleCrowdfund {
     struct Campaign {
-        address payable creator;        // The address of the person who created the campaign
-        string title;                   // Title of the campaign
-        string description;             // Detailed description of the campaign
-        uint256 goalAmount;             // The target amount to be raised, in wei
-        uint256 deadline;               // Unix timestamp representing the funding deadline
-        uint256 totalRaised;            // The total amount of Ether raised so far
-        mapping(address => uint256) contributions; // Tracks Ether contributed by each address
-        bool goalAchievedAndWithdrawn;  // True if the goal was met and funds withdrawn by creator
-        bool exists;                    // True if a campaign with this ID has been created
+        address payable creator;        
+        string title;                 
+        string description;             
+        uint256 goalAmount;          
+        uint256 deadline;              
+        uint256 totalRaised;            
+        mapping(address => uint256) contributions;
+        bool goalAchievedAndWithdrawn; 
+        bool exists;                 
     }
 
-    mapping(uint256 => Campaign) public campaigns; // Stores all campaigns by their ID
-    uint256 public campaignIDCounter; // A counter to generate unique campaign IDs
+    mapping(uint256 => Campaign) public campaigns; 
+    uint256 public campaignIDCounter; 
 
-    // Events to notify off-chain applications of important actions
     event CampaignCreated(uint256 indexed id, address indexed creator, string title, uint256 goalAmount, uint256 deadline);
     event ContributionMade(uint256 indexed campaignId, address indexed contributor, uint256 amount);
     event FundsWithdrawn(uint256 indexed campaignId, address indexed creator, uint256 amount);
-    // Optional: event FundsReclaimed(uint256 indexed campaignId, address indexed contributor, uint256 amount);
 
-    // Modifiers to enforce conditions on function execution
     modifier campaignExists(uint256 _id) {
         require(campaigns[_id].exists, "Campaign does not exist.");
         _;
@@ -44,13 +41,7 @@ contract SimpleCrowdfund {
         _;
     }
 
-    /**
-     * @dev Creates a new crowdfunding campaign.
-     * @param _title The title of the campaign.
-     * @param _description A description of the campaign.
-     * @param _goalAmount The funding goal in wei.
-     * @param _durationInDays The duration of the campaign in days.
-     */
+   
     function createCampaign(string memory _title, string memory _description, uint256 _goalAmount, uint256 _durationInDays) public {
         require(_goalAmount > 0, "Goal amount must be greater than zero.");
         require(_durationInDays > 0, "Duration must be greater than zero.");
@@ -69,10 +60,6 @@ contract SimpleCrowdfund {
         emit CampaignCreated(campaignIDCounter, msg.sender, _title, _goalAmount, deadlineTimestamp);
     }
 
-    /**
-     * @dev Allows users to contribute Ether to a campaign.
-     * @param _id The ID of the campaign to contribute to.
-     */
     function contribute(uint256 _id) public payable campaignExists(_id) beforeDeadline(_id) {
         require(msg.value > 0, "Contribution must be greater than zero."); // msg.value is the Ether sent
         Campaign storage campaign = campaigns[_id];
@@ -84,16 +71,13 @@ contract SimpleCrowdfund {
         emit ContributionMade(_id, msg.sender, msg.value);
     }
 
-    /**
-     * @dev Allows the campaign creator to withdraw funds if the goal is met and the deadline has passed.
-     * @param _id The ID of the campaign from which to withdraw funds.
-     */
-    function withdrawFunds(uint256 _id) public campaignExists(_id) onlyCampaignCreator(_id) afterDeadline(_id) {
+    
+    function withdrawFunds(uint256 _id) public campaignExists(_id) onlyCampaignCreator(_id)  {
         Campaign storage campaign = campaigns[_id];
-        require(campaign.totalRaised >= campaign.goalAmount, "Funding goal not reached.");
+        // require(campaign.totalRaised >= campaign.goalAmount, "Funding goal not reached.");
         require(!campaign.goalAchievedAndWithdrawn, "Funds already withdrawn.");
 
-        campaign.goalAchievedAndWithdrawn = true; // Mark as withdrawn (Checks-Effects-Interactions pattern)
+        campaign.goalAchievedAndWithdrawn = true; 
         uint256 amountToWithdraw = campaign.totalRaised;
         
         // Transfer funds to the creator
@@ -121,17 +105,7 @@ contract SimpleCrowdfund {
     }
     */
 
-    /**
-     * @dev Retrieves details of a specific campaign.
-     * @param _id The ID of the campaign.
-     * @return creator The address of the campaign creator.
-     * @return title The title of the campaign.
-     * @return description The description of the campaign.
-     * @return goalAmount The funding goal.
-     * @return deadline The campaign deadline.
-     * @return totalRaised The total amount raised.
-     * @return isWithdrawn Whether funds have been withdrawn.
-     */
+
     function getCampaignDetails(uint256 _id) public view campaignExists(_id) 
         returns (
             address creator, 
