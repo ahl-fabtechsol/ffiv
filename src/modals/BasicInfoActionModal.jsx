@@ -10,6 +10,8 @@ import * as Yup from "yup";
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
 import apiClient from "../api/apiClient";
+import { ethers } from "ethers";
+import { useSelector } from "react-redux";
 
 const style = {
   position: "absolute",
@@ -43,6 +45,7 @@ const style = {
 
 const BasicInfoActionModal = (props) => {
   const { type, data, setLoading } = props;
+  const contract = useSelector((state) => state.auth.contract);
   const handleSave = (values) => {
     props.onSave(values);
   };
@@ -67,11 +70,25 @@ const BasicInfoActionModal = (props) => {
         toast.error(response?.data?.message || "Failed to save basic info");
         return;
       }
+      const goalAmount = ethers.parseEther(values.funding.toString());
+      const title = values.name;
+      const duration = values.endDate.diff(values.startDate, "day");
+      const mongooseId = response?.data?.campaign?._id;
+      const description = values.detail;
+      const tx = await contract.createCampaign(
+        title,
+        description,
+        goalAmount,
+        Number(duration),
+        mongooseId
+      );
+      await tx.wait();
       setLoading(false);
       toast.success("Basic info saved successfully");
       handleSave(response?.data?.campaign);
     } catch (error) {
       setLoading(false);
+      console.error("Error creating campaign:", error);
       toast.error("Failed to save basic info");
     }
   };

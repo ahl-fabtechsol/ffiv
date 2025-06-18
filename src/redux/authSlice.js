@@ -6,6 +6,9 @@ const initialState = {
   role: null,
   isLoggedIn: false,
   user: null,
+  contract: null,
+  provider: null,
+  account: null,
 };
 
 export const authSlice = createSlice({
@@ -25,14 +28,22 @@ export const authSlice = createSlice({
       state.role = null;
       state.isLoggedIn = false;
       state.user = null;
+      state.contract = null;
+      state.provider = null;
+      state.account = null;
     },
 
     setUser: (state, { payload }) => {
       state.user = payload;
     },
+    setContract: (state, { payload }) => {
+      state.contract = payload.contract;
+      state.provider = payload.provider;
+      state.account = payload.account;
+    },
   },
 });
 
-export const { login, logout } = authSlice.actions;
+export const { login, logout, setContract, setUser } = authSlice.actions;
 
 export default authSlice.reducer;

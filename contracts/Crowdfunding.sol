@@ -3,21 +3,22 @@ pragma solidity ^0.8.9;
 
 contract SimpleCrowdfund {
     struct Campaign {
-        address payable creator;        
-        string title;                 
-        string description;             
-        uint256 goalAmount;          
-        uint256 deadline;              
-        uint256 totalRaised;            
+        address payable creator;
+        string title;
+        string description;
+        uint256 goalAmount;
+        uint256 deadline;
+        uint256 totalRaised;
         mapping(address => uint256) contributions;
-        bool goalAchievedAndWithdrawn; 
-        bool exists;                 
+        bool goalAchievedAndWithdrawn;
+        bool exists;
+        string mongooseId; // New field to store the Mongoose ID as a string
     }
 
-    mapping(uint256 => Campaign) public campaigns; 
-    uint256 public campaignIDCounter; 
+    mapping(uint256 => Campaign) public campaigns;
+    uint256 public campaignIDCounter;
 
-    event CampaignCreated(uint256 indexed id, address indexed creator, string title, uint256 goalAmount, uint256 deadline);
+    event CampaignCreated(uint256 indexed id, address indexed creator, string title, uint256 goalAmount, uint256 deadline, string mongooseId); // Added mongooseId to event
     event ContributionMade(uint256 indexed campaignId, address indexed contributor, uint256 amount);
     event FundsWithdrawn(uint256 indexed campaignId, address indexed creator, uint256 amount);
 
@@ -36,19 +37,22 @@ contract SimpleCrowdfund {
         _;
     }
 
-     modifier afterDeadline(uint256 _id) {
+    modifier afterDeadline(uint256 _id) {
         require(block.timestamp >= campaigns[_id].deadline, "Deadline not yet passed.");
         _;
     }
 
-   
-    function createCampaign(string memory _title, string memory _description, uint256 _goalAmount, uint256 _durationInDays) public {
+    // Modified createCampaign to accept a string for Mongoose ID
+    function createCampaign(string memory _title, string memory _description, uint256 _goalAmount, uint256 _durationInDays, string memory _mongooseId) public {
         require(_goalAmount > 0, "Goal amount must be greater than zero.");
         require(_durationInDays > 0, "Duration must be greater than zero.");
+        // Optional: You might want to add a check here to ensure _mongooseId is not empty,
+        // though Solidity strings don't have a simple way to check for emptiness directly.
+        // You could check if keccak256(abi.encodePacked(_mongooseId)) != keccak256(abi.encodePacked(""))
 
         uint256 deadlineTimestamp = block.timestamp + (_durationInDays * 1 days); // Solidity time units
         campaignIDCounter++; // Increment for a new unique ID
-        
+
         Campaign storage newCampaign = campaigns[campaignIDCounter];
         newCampaign.creator = payable(msg.sender); // The caller is the creator
         newCampaign.title = _title;
@@ -56,8 +60,9 @@ contract SimpleCrowdfund {
         newCampaign.goalAmount = _goalAmount;
         newCampaign.deadline = deadlineTimestamp;
         newCampaign.exists = true; // Mark this campaign ID as existing
+        newCampaign.mongooseId = _mongooseId; // Store the Mongoose ID
 
-        emit CampaignCreated(campaignIDCounter, msg.sender, _title, _goalAmount, deadlineTimestamp);
+        emit CampaignCreated(campaignIDCounter, msg.sender, _title, _goalAmount, deadlineTimestamp, _mongooseId); // Emit Mongoose ID
     }
 
     function contribute(uint256 _id) public payable campaignExists(_id) beforeDeadline(_id) {
@@ -71,15 +76,15 @@ contract SimpleCrowdfund {
         emit ContributionMade(_id, msg.sender, msg.value);
     }
 
-    
-    function withdrawFunds(uint256 _id) public campaignExists(_id) onlyCampaignCreator(_id)  {
+
+    function withdrawFunds(uint256 _id) public campaignExists(_id) onlyCampaignCreator(_id) {
         Campaign storage campaign = campaigns[_id];
         // require(campaign.totalRaised >= campaign.goalAmount, "Funding goal not reached.");
         require(!campaign.goalAchievedAndWithdrawn, "Funds already withdrawn.");
 
-        campaign.goalAchievedAndWithdrawn = true; 
+        campaign.goalAchievedAndWithdrawn = true;
         uint256 amountToWithdraw = campaign.totalRaised;
-        
+
         // Transfer funds to the creator
         (bool success, ) = campaign.creator.call{value: amountToWithdraw}(""); // Low-level call to send Ether
         require(success, "Failed to send Ether to creator.");
@@ -100,24 +105,25 @@ contract SimpleCrowdfund {
 
         (bool success, ) = payable(msg.sender).call{value: amountToReclaim}("");
         require(success, "Failed to send Ether back to contributor.");
-        
+
         emit FundsReclaimed(_id, msg.sender, amountToReclaim);
     }
     */
 
 
-    function getCampaignDetails(uint256 _id) public view campaignExists(_id) 
+    function getCampaignDetails(uint256 _id) public view campaignExists(_id)
         returns (
-            address creator, 
-            string memory title, 
-            string memory description, 
-            uint256 goalAmount, 
-            uint256 deadline, 
-            uint256 totalRaised, 
-            bool isWithdrawn
+            address creator,
+            string memory title,
+            string memory description,
+            uint256 goalAmount,
+            uint256 deadline,
+            uint256 totalRaised,
+            bool isWithdrawn,
+            string memory mongooseId // Added mongooseId to return
         ) {
         Campaign storage c = campaigns[_id];
-        return (c.creator, c.title, c.description, c.goalAmount, c.deadline, c.totalRaised, c.goalAchievedAndWithdrawn);
+        return (c.creator, c.title, c.description, c.goalAmount, c.deadline, c.totalRaised, c.goalAchievedAndWithdrawn, c.mongooseId);
     }
 
     /**

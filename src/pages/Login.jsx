@@ -7,7 +7,9 @@ import { Loader } from "../components/customLoader/Loader";
 import toast from "react-hot-toast";
 import apiClient from "../api/apiClient";
 import { useDispatch } from "react-redux";
-import { login } from "../redux/authSlice";
+import { login, setContract } from "../redux/authSlice";
+import { contractABI, contractAddress } from "../lib/contract";
+import { ethers } from "ethers";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -19,6 +21,35 @@ const Login = () => {
       .required("Email is Required"),
     password: Yup.string().required("Password is required"),
   });
+
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== "undefined") {
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contractInstance = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
+        dispatch(
+          setContract({
+            contract: contractInstance,
+            provider: provider,
+            account: accounts[0],
+          })
+        );
+      } catch (err) {
+        toast.error("Failed to connect wallet");
+        console.error(err);
+      }
+    } else {
+      setError("Please install MetaMask to use this application.");
+    }
+  };
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
@@ -28,6 +59,7 @@ const Login = () => {
         toast.error(response?.data?.message || "Something went wrong");
         return;
       }
+      await connectWallet();
       setLoading(false);
       dispatch(
         login({

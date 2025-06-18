@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, Divider } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Paginate from "../../components/Paginate";
 import TableMui from "../../components/TableMui";
@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import apiClient from "../../api/apiClient";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../modals/DeleteConfirmationModal";
+import { SiVoidlinux } from "react-icons/si";
 
 const AdminUsers = () => {
   const [loading, setLoading] = useState(false);
@@ -52,6 +53,27 @@ const AdminUsers = () => {
     } catch (error) {
       setLoading(false);
       toast.error("Failed to delete user");
+    }
+  };
+
+  const handleResetPassword = async (userId) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.patch(`auth/user/${userId}`, {
+        password: "12345678",
+      });
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Failed to reset password");
+        return;
+      }
+      setLoading(false);
+      toast.success("Password reset successfully");
+      setPage(1);
+      setOnAction(!onAction);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Failed to reset password");
     }
   };
 
@@ -128,6 +150,22 @@ const AdminUsers = () => {
                       }}
                     >
                       <FaRegTrashAlt size={20} />
+                    </Button>
+                    <Divider
+                      orientation="vertical"
+                      flexItem
+                      sx={{ marginX: 1, backgroundColor: "#e0e0e0" }}
+                    />
+                    <Button
+                      onClick={() => handleResetPassword(item._id)}
+                      sx={{
+                        minWidth: 0,
+                        padding: "5px",
+                        borderRadius: "50%",
+                        color: "#5c5c5c",
+                      }}
+                    >
+                      <SiVoidlinux size={20} />
                     </Button>
                   </Box>
                 </div>
