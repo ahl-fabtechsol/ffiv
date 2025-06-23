@@ -1,5 +1,4 @@
 import hardhat from "hardhat";
-
 const { ethers } = hardhat;
 
 async function main() {
@@ -7,15 +6,14 @@ async function main() {
 
   console.log("Deploying contract with the account:", deployer.address);
 
-  const Crowdfunding = await ethers.getContractFactory("Crowdfunding");
-  const crowdfunding = await Crowdfunding.deploy();
+  const SimpleCrowdfund = await ethers.getContractFactory("SimpleCrowdfund");
+  const simpleCrowdfund = await SimpleCrowdfund.deploy();
 
-  // Use waitForDeployment() instead of deployed()
-  await crowdfunding.waitForDeployment();
+  await simpleCrowdfund.waitForDeployment();
 
   console.log(
-    "Crowdfunding Contract deployed at:",
-    await crowdfunding.getAddress()
+    "SimpleCrowdfund Contract deployed at:",
+    await simpleCrowdfund.getAddress()
   );
 }
 

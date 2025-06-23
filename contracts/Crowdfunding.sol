@@ -1,114 +1,107 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.9;
 
-contract Crowdfunding {
+contract SimpleCrowdfund {
     struct Campaign {
         address payable creator;
         string title;
         string description;
-        string image; 
-        string video; 
-        uint256 goal;
+        uint256 goalAmount;
         uint256 deadline;
-        uint256 fundsRaised;
-        bool withdrawn;
-        mapping(address => uint256) donations;
+        uint256 totalRaised;
+        mapping(address => uint256) contributions;
+        bool goalAchievedAndWithdrawn;
+        bool exists;
+        string mongooseId; 
     }
 
     mapping(uint256 => Campaign) public campaigns;
-    uint256 public campaignCount;
+    uint256 public campaignIDCounter;
 
-    event CampaignCreated(
-        uint256 indexed campaignId,
-        address indexed creator,
-        string title,
-        uint256 goal,
-        uint256 deadline
-    );
-    event DonationReceived(uint256 indexed campaignId, address indexed donor, uint256 amount);
+    event CampaignCreated(uint256 indexed id, address indexed creator, string title, uint256 goalAmount, uint256 deadline, string mongooseId); 
+    event ContributionMade(uint256 indexed campaignId, address indexed contributor, uint256 amount);
     event FundsWithdrawn(uint256 indexed campaignId, address indexed creator, uint256 amount);
 
-    modifier onlyCreator(uint256 _campaignId) {
-        require(msg.sender == campaigns[_campaignId].creator, "Not campaign creator");
+    modifier campaignExists(uint256 _id) {
+        require(campaigns[_id].exists, "Campaign does not exist.");
         _;
     }
 
-    function createCampaign(
-        string memory _title,
-        string memory _description,
-        string memory _image,
-        string memory _video,
-        uint256 _goal,
-        uint256 _duration
-    ) external {
-        require(_goal > 0, "Goal must be greater than 0");
-        require(_duration > 0, "Duration must be greater than 0");
+    modifier onlyCampaignCreator(uint256 _id) {
+        require(campaigns[_id].creator == msg.sender, "Only campaign creator can call this.");
+        _;
+    }
 
-        campaignCount++;
-        Campaign storage newCampaign = campaigns[campaignCount];
+    modifier beforeDeadline(uint256 _id) {
+        require(block.timestamp < campaigns[_id].deadline, "Deadline has passed.");
+        _;
+    }
+
+    modifier afterDeadline(uint256 _id) {
+        require(block.timestamp >= campaigns[_id].deadline, "Deadline not yet passed.");
+        _;
+    }
+
+    function createCampaign(string memory _title, string memory _description, uint256 _goalAmount, uint256 _durationInDays, string memory _mongooseId) public {
+        require(_goalAmount > 0, "Goal amount must be greater than zero.");
+        require(_durationInDays > 0, "Duration must be greater than zero.");
+
+        uint256 deadlineTimestamp = block.timestamp + (_durationInDays * 1 days); 
+        campaignIDCounter++; 
+
+        Campaign storage newCampaign = campaigns[campaignIDCounter];
         newCampaign.creator = payable(msg.sender);
         newCampaign.title = _title;
         newCampaign.description = _description;
-        newCampaign.image = _image;
-        newCampaign.video = _video;
-        newCampaign.goal = _goal;
-        newCampaign.deadline = block.timestamp + _duration;
-        newCampaign.fundsRaised = 0;
-        newCampaign.withdrawn = false;
+        newCampaign.goalAmount = _goalAmount;
+        newCampaign.deadline = deadlineTimestamp;
+        newCampaign.exists = true;
+        newCampaign.mongooseId = _mongooseId;
 
-        emit CampaignCreated(campaignCount, msg.sender, _title, _goal, newCampaign.deadline);
+        emit CampaignCreated(campaignIDCounter, msg.sender, _title, _goalAmount, deadlineTimestamp, _mongooseId);
     }
 
-    function donate(uint256 _campaignId) external payable {
-        Campaign storage campaign = campaigns[_campaignId];
-        require(block.timestamp < campaign.deadline, "Campaign has ended");
-        require(msg.value > 0, "Donation must be greater than 0");
+    function contribute(uint256 _id) public payable campaignExists(_id) beforeDeadline(_id) {
+        require(msg.value > 0, "Contribution must be greater than zero.");
+        Campaign storage campaign = campaigns[_id];
+        require(!campaign.goalAchievedAndWithdrawn, "Campaign funds already withdrawn by creator.");
 
-        campaign.fundsRaised += msg.value;
-        campaign.donations[msg.sender] += msg.value;
+        campaign.contributions[msg.sender] += msg.value;
+        campaign.totalRaised += msg.value;
 
-        emit DonationReceived(_campaignId, msg.sender, msg.value);
+        emit ContributionMade(_id, msg.sender, msg.value);
     }
 
-    function withdrawFunds(uint256 _campaignId) external onlyCreator(_campaignId) {
-        Campaign storage campaign = campaigns[_campaignId];
-        require(block.timestamp > campaign.deadline, "Campaign is still active");
-        require(campaign.fundsRaised >= campaign.goal, "Funding goal not reached");
-        require(!campaign.withdrawn, "Funds already withdrawn");
 
-        uint256 amount = campaign.fundsRaised;
-        campaign.withdrawn = true;
-        payable(msg.sender).transfer(amount);
+    function withdrawFunds(uint256 _id) public campaignExists(_id) onlyCampaignCreator(_id) {
+        Campaign storage campaign = campaigns[_id];
+        require(!campaign.goalAchievedAndWithdrawn, "Funds already withdrawn.");
 
-        emit FundsWithdrawn(_campaignId, msg.sender, amount);
+        campaign.goalAchievedAndWithdrawn = true;
+        uint256 amountToWithdraw = campaign.totalRaised;
+
+        (bool success, ) = campaign.creator.call{value: amountToWithdraw}(""); 
+        require(success, "Failed to send Ether to creator.");
+
+        emit FundsWithdrawn(_id, msg.sender, amountToWithdraw);
     }
 
-    function getCampaign(uint256 _campaignId)
-        external
-        view
+    function getCampaignDetails(uint256 _id) public view campaignExists(_id)
         returns (
             address creator,
             string memory title,
             string memory description,
-            string memory image,
-            string memory video,
-            uint256 goal,
+            uint256 goalAmount,
             uint256 deadline,
-            uint256 fundsRaised,
-            bool withdrawn
-        )
-    {
-        Campaign storage campaign = campaigns[_campaignId];
-        return (
-            campaign.creator,
-            campaign.title,
-            campaign.description,
-            campaign.image,
-            campaign.video,
-            campaign.goal,
-            campaign.deadline,
-            campaign.fundsRaised,
-            campaign.withdrawn
-        );
+            uint256 totalRaised,
+            bool isWithdrawn,
+            string memory mongooseId 
+        ) {
+        Campaign storage c = campaigns[_id];
+        return (c.creator, c.title, c.description, c.goalAmount, c.deadline, c.totalRaised, c.goalAchievedAndWithdrawn, c.mongooseId);
+    }
+
+    function getContribution(uint256 _id, address _contributor) public view campaignExists(_id) returns (uint256) {
+        return campaigns[_id].contributions[_contributor];
     }
 }

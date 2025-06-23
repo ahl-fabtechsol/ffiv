@@ -11,9 +11,12 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ChangeStatusModal from "../../modals/ChangeStatusModal";
 import BackerActionModal from "../../modals/BackerActionModal";
+import { ethers } from "ethers";
+import { contractABI, contractAddress } from "../../lib/contract";
 
 const AdminAllCampaigns = () => {
   const [loading, setLoading] = useState(false);
+  const account = useSelector((state) => state.auth.account);
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [campaigns, setCampaigns] = useState([]);
@@ -24,13 +27,15 @@ const AdminAllCampaigns = () => {
   const [campaignId, setCampaignId] = useState("");
   const [onAction, setOnAction] = useState(false);
   const [status, setStatus] = useState("");
+  const [localContractInstance, setLocalContractInstance] = useState(null);
+  const [contractCampaigns, setContractCampaigns] = useState([]);
 
   const STATUS_COLORS = {
-    A: "#02ad1d", // Active - Green
-    I: "#e4812e", // Inactive - Orange
-    UR: "#fbc02d", // Under Review - Yellow
-    C: "#1976d2", // Completed - Blue
-    F: "#d32f2f", // Failed - Red
+    A: "#02ad1d",
+    I: "#e4812e",
+    UR: "#fbc02d",
+    C: "#1976d2",
+    F: "#d32f2f",
   };
 
   const statusLabel = {
@@ -41,10 +46,28 @@ const AdminAllCampaigns = () => {
     F: "Failed",
   };
 
+  // const getCampaigns = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await apiClient.get(`campaign`);
+  //     if (!response.ok) {
+  //       setLoading(false);
+  //       toast.error(response?.data?.message || "Failed to fetch campaigns");
+  //       return;
+  //     }
+  //     setLoading(false);
+  //     setCount(response?.data?.count);
+  //     setCampaigns(response?.data?.campaigns);
+  //   } catch (error) {
+  //     setLoading(false);
+  //     toast.error("Failed to fetch campaigns");
+  //   }
+  // };
+
   const getCampaigns = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get(`campaign?page=${page}&limit=10`);
+      const response = await apiClient.get(`campaign`);
       if (!response.ok) {
         setLoading(false);
         toast.error(response?.data?.message || "Failed to fetch campaigns");
@@ -52,16 +75,95 @@ const AdminAllCampaigns = () => {
       }
       setLoading(false);
       setCount(response?.data?.count);
-      setCampaigns(response?.data?.campaigns);
+
+      const dbCampaigns = response?.data?.campaigns;
+      const mergedCampaigns = dbCampaigns.map((dbCamp) => {
+        const onChainMatch = contractCampaigns.find(
+          (contractCamp) => contractCamp.mongooseId === dbCamp._id
+        );
+        return {
+          ...dbCamp,
+          onChain: !!onChainMatch,
+          chainData: onChainMatch,
+        };
+      });
+      setCampaigns(mergedCampaigns);
     } catch (error) {
       setLoading(false);
       toast.error("Failed to fetch campaigns");
     }
   };
 
+  const fetchCampaigns = async (contractInstance) => {
+    if (!contractInstance) {
+      console.warn("Contract instance not available for fetching campaigns.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const counter = await contractInstance.campaignIDCounter();
+      const fetchedCampaigns = [];
+      for (let i = Number(counter); i >= 1; i--) {
+        const campaignData = await contractInstance.getCampaignDetails(i);
+        fetchedCampaigns.push({
+          id: i,
+          creator: campaignData.creator,
+          title: campaignData.title,
+          description: campaignData.description,
+          goalAmount: ethers.formatEther(campaignData.goalAmount),
+          deadline: new Date(
+            Number(campaignData.deadline) * 1000
+          ).toLocaleString(),
+          totalRaised: ethers.formatEther(campaignData.totalRaised),
+          isWithdrawn: campaignData.isWithdrawn,
+          mongooseId: campaignData.mongooseId,
+        });
+      }
+      setContractCampaigns(fetchedCampaigns);
+    } catch (err) {
+      toast.error("Failed to fetch campaigns from contract");
+      console.error("Error fetching contract campaigns:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    getCampaigns();
-  }, [page, onAction]);
+    const initContract = async () => {
+      if (typeof window.ethereum !== "undefined" && account) {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = await provider.getSigner();
+          const instance = new ethers.Contract(
+            contractAddress,
+            contractABI,
+            signer
+          );
+          setLocalContractInstance(instance);
+        } catch (err) {
+          console.error("Failed to initialize contract in UserCampaign:", err);
+          toast.error(
+            "Failed to connect to blockchain. Please check MetaMask."
+          );
+        }
+      } else if (!account) {
+        setLocalContractInstance(null);
+      }
+    };
+    initContract();
+  }, [account]);
+
+  useEffect(() => {
+    if (localContractInstance) {
+      fetchCampaigns(localContractInstance);
+    }
+  }, [localContractInstance]);
+
+  useEffect(() => {
+    if (contractCampaigns.length > 0 || !loading) {
+      getCampaigns();
+    }
+  }, [page, onAction, contractCampaigns]);
 
   return (
     <Box className="p-4">
@@ -102,12 +204,53 @@ const AdminAllCampaigns = () => {
             endDate: "End Date",
             funding: "Funding Required",
             funded: "Funded",
+            onChainStatus: "On Chain Status",
             status: "Status",
             backers: "Backers",
             action: "Action",
           }}
           td={campaigns}
           customFields={[
+            {
+              name: "onChainStatus",
+              data: (value, item) => {
+                const isOnChain = item.onChain;
+                return (
+                  <Box
+                    onClick={() => {
+                      if (isOnChain) {
+                        toast.success("Campaign is already on blockchain");
+                      } else {
+                        putOnChain(item);
+                      }
+                    }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 24,
+                      height: 24,
+                      borderRadius: "50%",
+                      backgroundColor: isOnChain ? "#4CAF50" : "#F44336",
+                      color: "white",
+                      fontSize: "0.8rem",
+                      fontWeight: "bold",
+                      boxShadow: isOnChain
+                        ? "0 2px 4px rgba(76, 175, 80, 0.3)"
+                        : "0 2px 4px rgba(244, 67, 54, 0.3)",
+                      cursor: "pointer",
+                    }}
+                    title={
+                      isOnChain
+                        ? "Campaign is on blockchain"
+                        : "Campaign is NOT on blockchain"
+                    }
+                  >
+                    {isOnChain ? "✔" : "✘"}
+                  </Box>
+                );
+              },
+            },
             {
               name: "backers",
               data: (value, item) => {

@@ -10,6 +10,7 @@ import { logout } from "../redux/authSlice";
 
 const Navbar = ({ type }) => {
   const [openDrawer, setOpenDrawer] = useState(false);
+  const account = store?.getState()?.auth?.account;
   const dispatch = useDispatch();
   const txtColor = type === "other" ? "text-black" : "text-white";
   const userImage = store?.getState()?.auth?.user?.profilePicture;
@@ -72,6 +73,16 @@ const Navbar = ({ type }) => {
         </div>
 
         <div className="hidden md:flex flex-row gap-3 items-center">
+          {account ? (
+            <p className={` ${txtColor}`}>
+              Connected:{" "}
+              {`${account.substring(0, 6)}...${account.substring(
+                account.length - 4
+              )}`}
+            </p>
+          ) : (
+            <p className="account-info">Not connected</p>
+          )}
           {isLoggedIn ? (
             <>
               <Avatar

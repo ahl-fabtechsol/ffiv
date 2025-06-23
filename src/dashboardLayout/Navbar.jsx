@@ -14,6 +14,7 @@ import { useSelector } from "react-redux";
 
 function Navbar({ handleDrawerToggle, type }) {
   const theme = useTheme();
+  const account = useSelector((state) => state.auth.account);
   const isSmallScreen = useMediaQuery(theme.breakpoints.down(900));
   const user = useSelector((state) => state.auth.user);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -37,6 +38,16 @@ function Navbar({ handleDrawerToggle, type }) {
               {type === "user" ? "User Dashboard" : "Admin Dashboard"}
             </Typography>
             <div className="flex items-center">
+              {account ? (
+                <p className="text-black">
+                  Connected:{" "}
+                  {`${account.substring(0, 6)}...${account.substring(
+                    account.length - 4
+                  )}`}
+                </p>
+              ) : (
+                <p className="account-info">Not connected</p>
+              )}
               <Box className="flex items-center gap-3 p-2 rounded-lg cursor-pointer">
                 <Box className="hidden lg:block">
                   <Typography
