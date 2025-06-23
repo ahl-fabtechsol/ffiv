@@ -1,10 +1,8 @@
-// CORRECT WAY TO IMPORT IN AN ES MODULE PROJECT
 import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hardhat from "hardhat";
 const { ethers } = hardhat;
 
-// The rest of the test code is exactly the same
 describe("SimpleCrowdfund", function () {
   async function deployCrowdfundFixture() {
     const [owner, contributor1, contributor2] = await ethers.getSigners();
@@ -15,8 +13,7 @@ describe("SimpleCrowdfund", function () {
     const title = "My Test Campaign";
     const description = "A campaign for testing purposes";
 
-    // --- FIX APPLIED HERE --- (removed .utils)
-    const goalAmount = ethers.parseEther("10"); // 10 ETH goal
+    const goalAmount = ethers.parseEther("10");
 
     const durationInDays = 5;
     const deadline = (await time.latest()) + durationInDays * 24 * 60 * 60;
@@ -38,18 +35,11 @@ describe("SimpleCrowdfund", function () {
   describe("Deployment", function () {
     it("Should set the campaignIDCounter to 0 initially", async function () {
       const { crowdfund } = await loadFixture(deployCrowdfundFixture);
-      // This test has a bug in the provided contract. campaignIDCounter is not initialized to 0 in a readable way before the first creation.
-      // Let's check that it exists, which is a good starting point. Hardhat initializes uints to 0 by default.
       expect(await crowdfund.campaignIDCounter()).to.equal(0);
     });
   });
 
   describe("Campaign Creation", function () {
-    // There is a bug in the provided smart contract code.
-    // The line `Campaign storage newCampaign = campaigns;` should be `Campaign storage newCampaign = campaigns[campaignIDCounter];`
-    // And there are other issues like using the same storage slot.
-    // The tests below will fail until the contract is fixed. I will provide the fixed contract code after this.
-    // For now, let's assume the contract is fixed for the purpose of testing.
     it("Should allow a user to create a campaign and emit an event", async function () {
       const {
         crowdfund,
@@ -60,7 +50,6 @@ describe("SimpleCrowdfund", function () {
         durationInDays,
       } = await loadFixture(deployCrowdfundFixture);
 
-      // Get the timestamp BEFORE the transaction is sent
       const timestampBefore = await time.latest();
       const expectedDeadline =
         timestampBefore + durationInDays * 24 * 60 * 60 + 1;
@@ -69,19 +58,10 @@ describe("SimpleCrowdfund", function () {
         crowdfund.createCampaign(title, description, goalAmount, durationInDays)
       )
         .to.emit(crowdfund, "CampaignCreated")
-        .withArgs(
-          1,
-          owner.address,
-          title,
-          goalAmount,
-          // Instead of an exact value, we use a function to validate the deadline
-          (actualDeadline) => {
-            // Check that the actual deadline is very close to our expected deadline.
-            // We allow a small difference (e.g., 5 seconds) to account for block timing.
-            expect(actualDeadline).to.be.closeTo(expectedDeadline, 5);
-            return true; // The validator must return true for the test to pass
-          }
-        );
+        .withArgs(1, owner.address, title, goalAmount, (actualDeadline) => {
+          expect(actualDeadline).to.be.closeTo(expectedDeadline, 5);
+          return true;
+        });
     });
 
     it("Should correctly store campaign details", async function () {
@@ -134,8 +114,6 @@ describe("SimpleCrowdfund", function () {
         goalAmount,
         durationInDays
       );
-
-      // --- FIX APPLIED HERE --- (removed .utils)
       const contribution = ethers.parseEther("1.0");
       await crowdfund
         .connect(contributor1)
@@ -171,7 +149,6 @@ describe("SimpleCrowdfund", function () {
 
       await time.increaseTo(deadline + 1);
 
-      // --- FIX APPLIED HERE --- (removed .utils)
       const contribution = ethers.parseEther("1.0");
       await expect(
         crowdfund
@@ -186,7 +163,6 @@ describe("SimpleCrowdfund", function () {
       );
       const nonExistentCampaignId = 999;
 
-      // --- FIX APPLIED HERE --- (removed .utils)
       const contribution = ethers.parseEther("1.0");
 
       await expect(
@@ -247,7 +223,6 @@ describe("SimpleCrowdfund", function () {
         durationInDays
       );
 
-      // --- FIX APPLIED HERE --- (removed .utils)
       const contribution = ethers.parseEther("1.0");
       await crowdfund
         .connect(contributor1)

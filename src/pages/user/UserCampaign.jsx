@@ -67,6 +67,7 @@ const UserCampaign = () => {
         return {
           ...dbCamp,
           onChain: !!onChainMatch,
+          chainData: onChainMatch,
         };
       });
       setCampaigns(mergedCampaigns);
@@ -143,6 +144,22 @@ const UserCampaign = () => {
       } else {
         toast.error("Failed to put campaign on chain");
       }
+    }
+  };
+
+  const handleWithdraw = async (data) => {
+    setLoading(true);
+    try {
+      const tx = await localContractInstance.withdrawFunds(data.chainData.id);
+      await tx.wait();
+      setOnAction(!onAction);
+
+      toast.success("Withdrawal successful");
+    } catch (err) {
+      toast.error("Withdrawal failed. See console.");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -224,6 +241,7 @@ const UserCampaign = () => {
             status: "Status",
             onChainStatus: "On Chain",
             backers: "Backers",
+            withdraw: "Withdraw",
             action: "Action",
           }}
           td={campaigns}
@@ -287,6 +305,36 @@ const UserCampaign = () => {
                     }}
                   >
                     Backers
+                  </Button>
+                );
+              },
+            },
+
+            {
+              name: "withdraw",
+              data: (value, item) => {
+                const isCreator =
+                  account.toLowerCase() ===
+                  item?.chainData?.creator?.toLowerCase();
+                const canWithdraw =
+                  isCreator &&
+                  !item?.chainData?.isWithdrawn &&
+                  parseFloat(item?.chainData?.totalRaised) >=
+                    parseFloat(item?.chainData?.goalAmount);
+                return (
+                  <Button
+                    onClick={() => handleWithdraw(item)}
+                    className="bg_primary p-10 "
+                    sx={{
+                      textTransform: "none",
+                      color: "white",
+                      padding: "10px",
+                      width: "150px",
+                      borderRadius: "50px",
+                    }}
+                    disabled={!canWithdraw}
+                  >
+                    Withdraw
                   </Button>
                 );
               },

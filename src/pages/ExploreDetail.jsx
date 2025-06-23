@@ -1,26 +1,35 @@
-import { Box, LinearProgress, Button } from "@mui/material";
+import { Box, Button, LinearProgress } from "@mui/material";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import TeamCard from "../components/TeamCard";
+import apiClient from "../api/apiClient";
 import AnimatedTestimonials from "../components/AnimatedTestimonials";
 import FaqAccordion from "../components/FaqAccordian";
 import ProjectTimeline from "../components/ProjectTimeline";
+import TeamCard from "../components/TeamCard";
 import { Loader } from "../components/customLoader/Loader";
-import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
-import { testimonials } from "../lib/dummyData";
-import apiClient from "../api/apiClient";
+import PaymentSelectionModal from "../modals/PaymentSelectionModal";
+import BlockChainPaymentModal from "../modals/BlockchainPaymentModal";
+import { contractABI, contractAddress } from "../lib/contract";
+import { ethers } from "ethers";
+import { useSelector } from "react-redux";
 
 export default function Page() {
   const { id } = useParams();
+  const account = useSelector((state) => state.auth.account);
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const data = location.state.active;
+  console.log("data", data);
   const [teamData, setTeamData] = useState([]);
+  const [paymentSelectionModal, setPaymentSelectionModal] = useState(false);
+  const [blockchainModal, setBlockchainModal] = useState(false);
   const [faqs, setFaqs] = useState([]);
   const [rewards, setRewards] = useState([]);
   const [projectTimelines, setProjectTimelines] = useState([]);
   const [backers, setBackers] = useState([]);
   const navigate = useNavigate();
+  const [localContractInstance, setLocalContractInstance] = useState(null);
 
   const getTeamData = async () => {
     setLoading(true);
@@ -107,6 +116,53 @@ export default function Page() {
     }
   };
 
+  const handleContribute = async (contribution) => {
+    if (!contribution || isNaN(contribution) || parseFloat(contribution) <= 0) {
+      toast.error("Please enter a valid contribution amount.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const toString = String(contribution);
+      const value = ethers.parseEther(toString);
+      const tx = await localContractInstance.contribute(data.chainId, {
+        value,
+      });
+      await tx.wait();
+      toast.success("Contribution successful!");
+    } catch (err) {
+      toast.error("Contribution failed. See console.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const initContract = async () => {
+      if (typeof window.ethereum !== "undefined" && account) {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = await provider.getSigner();
+          const instance = new ethers.Contract(
+            contractAddress,
+            contractABI,
+            signer
+          );
+          setLocalContractInstance(instance);
+        } catch (err) {
+          console.error("Failed to initialize contract in UserCampaign:", err);
+          toast.error(
+            "Failed to connect to blockchain. Please check MetaMask."
+          );
+        }
+      } else if (!account) {
+        setLocalContractInstance(null);
+      }
+    };
+    initContract();
+  }, [account]);
+
   useEffect(() => {
     getTeamData();
     getFaqs();
@@ -118,6 +174,25 @@ export default function Page() {
   return (
     <Box>
       <Loader loading={loading} />
+      {paymentSelectionModal && (
+        <PaymentSelectionModal
+          open={paymentSelectionModal}
+          onClose={() => setPaymentSelectionModal(false)}
+          onBank={() =>
+            navigate("/payment", {
+              state: { rewards: rewards, campaignId: id },
+            })
+          }
+          onBlockchain={() => setBlockchainModal(true)}
+        />
+      )}
+      {blockchainModal && (
+        <BlockChainPaymentModal
+          open={blockchainModal}
+          onClose={() => setBlockchainModal(false)}
+          onSave={handleContribute}
+        />
+      )}
       <Box className="relative min-h-screen w-full ">
         <video
           preload="auto"
@@ -299,11 +374,7 @@ export default function Page() {
       <Box className="p-10 text-center">
         <p className="text-3xl mb-4 font-bold">Ready to make a difference?</p>
         <Button
-          onClick={() =>
-            navigate("/payment", {
-              state: { rewards: rewards, campaignId: id },
-            })
-          }
+          onClick={() => setPaymentSelectionModal(true)}
           className="bg_primary p-10 "
           sx={{
             textTransform: "none",
