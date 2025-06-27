@@ -19,6 +19,7 @@ import { Loader } from "../../components/customLoader/Loader";
 import dayjs from "dayjs";
 import apiClient from "../../api/apiClient";
 import toast from "react-hot-toast";
+import { s3Uploader } from "../../utils/s3Uploader";
 
 const Setting = () => {
   const fileInputRef = useRef(null);
@@ -80,7 +81,8 @@ const Setting = () => {
       for (const key in values) {
         if (key === "profilePicture") {
           if (values[key]) {
-            formData.append(key, values[key]);
+            const image = await s3Uploader(values[key]);
+            formData.append(key, image);
           }
         } else {
           formData.append(key, values[key]);
@@ -89,12 +91,7 @@ const Setting = () => {
 
       const response = await apiClient.patch(
         `auth/user/${userData?._id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        formData
       );
 
       if (!response.ok) {

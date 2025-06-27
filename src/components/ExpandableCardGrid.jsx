@@ -199,7 +199,7 @@ export function ExpandableCardGrid({ cards }) {
                   <div className="flex flex-row items-center gap-2">
                     <FiGift />
                     <motion.p className="text-fdTextGray">
-                      $ {card?.funded}
+                      ETH {card?.funded}
                     </motion.p>
                   </div>
                   <motion.p className="text-fdTextGray">

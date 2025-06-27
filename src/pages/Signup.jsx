@@ -22,6 +22,7 @@ import imageCompression from "browser-image-compression";
 import toast from "react-hot-toast";
 import { Loader } from "../components/customLoader/Loader";
 import apiClient from "../api/apiClient";
+import { s3Uploader } from "../utils/s3Uploader";
 
 const steps = ["Personal Info", "Contact Info", "Password Setup"];
 
@@ -156,17 +157,14 @@ const Signup = () => {
       const formData = new FormData();
       for (const key in values) {
         if (key === "profilePicture") {
-          formData.append(key, values[key]);
+          const image = await s3Uploader(values[key]);
+          formData.append(key, image);
         } else {
           formData.append(key, values[key]);
         }
       }
 
-      const response = await apiClient.post("auth/register", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await apiClient.post("auth/register", formData);
 
       if (!response.ok) {
         setLoading(false);

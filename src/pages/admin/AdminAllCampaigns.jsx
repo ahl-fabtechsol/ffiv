@@ -13,6 +13,8 @@ import ChangeStatusModal from "../../modals/ChangeStatusModal";
 import BackerActionModal from "../../modals/BackerActionModal";
 import { ethers } from "ethers";
 import { contractABI, contractAddress } from "../../lib/contract";
+import DeleteConfirmationModal from "../../modals/DeleteConfirmationModal";
+import EthToUsdDisplay from "../../components/EthToUsdDisplay";
 
 const AdminAllCampaigns = () => {
   const [loading, setLoading] = useState(false);
@@ -29,6 +31,8 @@ const AdminAllCampaigns = () => {
   const [status, setStatus] = useState("");
   const [localContractInstance, setLocalContractInstance] = useState(null);
   const [contractCampaigns, setContractCampaigns] = useState([]);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [deleteConfirmationModal, setDeleteConfirmationModal] = useState(false);
 
   const STATUS_COLORS = {
     A: "#02ad1d",
@@ -36,6 +40,7 @@ const AdminAllCampaigns = () => {
     UR: "#fbc02d",
     C: "#1976d2",
     F: "#d32f2f",
+    W: "#9e9e9e",
   };
 
   const statusLabel = {
@@ -44,25 +49,8 @@ const AdminAllCampaigns = () => {
     UR: "Under Review",
     C: "Completed",
     F: "Failed",
+    W: "Withdrawn",
   };
-
-  // const getCampaigns = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await apiClient.get(`campaign`);
-  //     if (!response.ok) {
-  //       setLoading(false);
-  //       toast.error(response?.data?.message || "Failed to fetch campaigns");
-  //       return;
-  //     }
-  //     setLoading(false);
-  //     setCount(response?.data?.count);
-  //     setCampaigns(response?.data?.campaigns);
-  //   } catch (error) {
-  //     setLoading(false);
-  //     toast.error("Failed to fetch campaigns");
-  //   }
-  // };
 
   const getCampaigns = async () => {
     setLoading(true);
@@ -128,6 +116,24 @@ const AdminAllCampaigns = () => {
     }
   };
 
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.delete(`campaign/${selectedCampaign}`);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Failed to delete campaign");
+        return;
+      }
+      setLoading(false);
+      toast.success("Campaign deleted successfully");
+      setOnAction(!onAction);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Failed to delete campaign");
+    }
+  };
+
   useEffect(() => {
     const initContract = async () => {
       if (typeof window.ethereum !== "undefined" && account) {
@@ -167,6 +173,14 @@ const AdminAllCampaigns = () => {
 
   return (
     <Box className="p-4">
+      {deleteConfirmationModal && (
+        <DeleteConfirmationModal
+          open={deleteConfirmationModal}
+          onClose={() => setDeleteConfirmationModal(false)}
+          onConfirm={handleDelete}
+          message="Are you sure you want to delete this campaign?"
+        />
+      )}
       {showStatusModal && (
         <ChangeStatusModal
           open={showStatusModal}
@@ -277,13 +291,14 @@ const AdminAllCampaigns = () => {
             {
               name: "funding",
               data: (value, item) => {
-                return "$" + value;
+                return <EthToUsdDisplay ethAmount={value} />;
               },
             },
             {
               name: "funded",
               data: (value, item) => {
-                return "$" + value;
+                const fundedAmount = item.chainData?.totalRaised || "0";
+                return <EthToUsdDisplay ethAmount={fundedAmount} />;
               },
             },
             {
@@ -374,6 +389,10 @@ const AdminAllCampaigns = () => {
                       sx={{ marginX: 1, backgroundColor: "#e0e0e0" }}
                     />
                     <Button
+                      onClick={() => {
+                        setSelectedCampaign(item._id);
+                        setDeleteConfirmationModal(true);
+                      }}
                       sx={{
                         minWidth: 0,
                         padding: "5px",

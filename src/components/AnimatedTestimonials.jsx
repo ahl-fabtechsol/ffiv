@@ -56,7 +56,7 @@ const AnimatedTestimonials = ({ backers, autoplay }) => {
             <p className="text-lg text-gray-600 mt-6 leading-relaxed">
               Money Pledged :{" "}
               <span className="font-bold">
-                ${backers[active]?.moneyPledged}{" "}
+                ETH{backers[active]?.moneyPledged}{" "}
               </span>
             </p>
           </div>

@@ -128,7 +128,7 @@ const PaymentSelectionModal = (props) => {
                 </Typography>
               </Button>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            {/* <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
                 fullWidth
                 onClick={() => handlePaymentSelect("Bank")}
@@ -161,7 +161,7 @@ const PaymentSelectionModal = (props) => {
                   Pay with Bank
                 </Typography>
               </Button>
-            </motion.div>
+            </motion.div> */}
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>

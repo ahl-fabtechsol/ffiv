@@ -1,6 +1,8 @@
 import { Box, Button, LinearProgress } from "@mui/material";
+import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import apiClient from "../api/apiClient";
 import AnimatedTestimonials from "../components/AnimatedTestimonials";
@@ -8,11 +10,9 @@ import FaqAccordion from "../components/FaqAccordian";
 import ProjectTimeline from "../components/ProjectTimeline";
 import TeamCard from "../components/TeamCard";
 import { Loader } from "../components/customLoader/Loader";
-import PaymentSelectionModal from "../modals/PaymentSelectionModal";
-import BlockChainPaymentModal from "../modals/BlockchainPaymentModal";
 import { contractABI, contractAddress } from "../lib/contract";
-import { ethers } from "ethers";
-import { useSelector } from "react-redux";
+import BlockChainPaymentModal from "../modals/BlockchainPaymentModal";
+import PaymentSelectionModal from "../modals/PaymentSelectionModal";
 
 export default function Page() {
   const { id } = useParams();
@@ -20,7 +20,6 @@ export default function Page() {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const data = location.state.active;
-  console.log("data", data);
   const [teamData, setTeamData] = useState([]);
   const [paymentSelectionModal, setPaymentSelectionModal] = useState(false);
   const [blockchainModal, setBlockchainModal] = useState(false);
@@ -253,7 +252,7 @@ export default function Page() {
           <Box className="flex flex-col items-center">
             <p className="text-3xl font-bold">Funding Progress</p>
             <p className="text-md mt-4">
-              ${data?.funded || 0} / ${data?.funding || 10000}
+              ETH{data?.funded || 0} / ETH{data?.funding || 10000}
             </p>
             <LinearProgress
               variant="determinate"
@@ -308,7 +307,7 @@ export default function Page() {
                   {reward?.title}
                 </h3>
                 <p className="text-5xl font-bold text_primary mb-6">
-                  ${reward?.price}
+                  ETH{reward?.price}
                 </p>
                 <ul className="text-left space-y-3 mb-8">
                   {reward?.features.map((feature, i) => {

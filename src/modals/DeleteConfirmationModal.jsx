@@ -54,10 +54,10 @@ const DeleteConfirmationModal = (props) => {
             <MdCancel size={25} color="black" />
           </IconButton>
         </Box>
-        <Box className="flex flex-col mt-10 gap-6">
+        <Box className="flex flex-col gap-6">
           <p className="text-lg">{props?.message}</p>
         </Box>
-        <Box className="flex flex-col my-10 gap-6">
+        <Box className="flex flex-col my-3 gap-6">
           <Box className="flex justify-end gap-3 items-center">
             <Button
               onClick={props.onClose}
