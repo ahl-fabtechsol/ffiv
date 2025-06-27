@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import apiClient from "../api/apiClient";
 import axios from "axios";
+import { s3Uploader } from "../utils/s3Uploader";
 
 const style = {
   position: "absolute",
@@ -85,15 +86,12 @@ const UploadDocumentsActionModal = (props) => {
       await axios.put(url, videoFile, config);
 
       const formData = new FormData();
-      formData.append("image", imageFile);
+      const image = await s3Uploader(imageFile);
+      formData.append("image", image);
       formData.append("videoKey", fileKey);
       formData.append("campaignId", campaignId);
 
-      const documentResponse = await apiClient.post("document", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const documentResponse = await apiClient.post("document", formData);
       if (!documentResponse.ok) {
         setLoading(false);
         toast.error(

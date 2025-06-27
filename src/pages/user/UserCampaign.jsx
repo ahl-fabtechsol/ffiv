@@ -13,6 +13,8 @@ import BackerActionModal from "../../modals/BackerActionModal";
 import UserChangeStatusModal from "../../modals/UserChangeStatusModal";
 import { ethers } from "ethers";
 import { contractABI, contractAddress } from "../../lib/contract";
+import DeleteConfirmationModal from "../../modals/DeleteConfirmationModal";
+import EthToUsdDisplay from "../../components/EthToUsdDisplay";
 
 const UserCampaign = () => {
   const [loading, setLoading] = useState(false);
@@ -28,6 +30,8 @@ const UserCampaign = () => {
   const [changeStatusModal, setChangeStatusModal] = useState(false);
   const [onAction, setOnAction] = useState(false);
   const [localContractInstance, setLocalContractInstance] = useState(null);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [deleteConfirmationModal, setDeleteConfirmationModal] = useState(false);
 
   const STATUS_COLORS = {
     A: "#02ad1d",
@@ -35,6 +39,7 @@ const UserCampaign = () => {
     UR: "#fbc02d",
     C: "#1976d2",
     F: "#d32f2f",
+    W: "#9e9e9e",
   };
 
   const statusLabel = {
@@ -43,6 +48,7 @@ const UserCampaign = () => {
     UR: "Under Review",
     C: "Completed",
     F: "Failed",
+    W: "Withdrawn",
   };
 
   const getCampaigns = async () => {
@@ -152,14 +158,41 @@ const UserCampaign = () => {
     try {
       const tx = await localContractInstance.withdrawFunds(data.chainData.id);
       await tx.wait();
+      const response = await apiClient.post(`campaign/withdraw`, {
+        campaignId: data._id,
+      });
+
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Withdrawal failed");
+        return;
+      }
       setOnAction(!onAction);
 
       toast.success("Withdrawal successful");
     } catch (err) {
-      toast.error("Withdrawal failed. See console.");
+      toast.error(err?.reason || "Withdrawal failed. See console.");
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.delete(`campaign/${selectedCampaign}`);
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Failed to delete campaign");
+        return;
+      }
+      setLoading(false);
+      toast.success("Campaign deleted successfully");
+      setOnAction(!onAction);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Failed to delete campaign");
     }
   };
 
@@ -202,6 +235,14 @@ const UserCampaign = () => {
 
   return (
     <Box className="p-4">
+      {deleteConfirmationModal && (
+        <DeleteConfirmationModal
+          open={deleteConfirmationModal}
+          onClose={() => setDeleteConfirmationModal(false)}
+          onConfirm={handleDelete}
+          message="Are you sure you want to delete this campaign?"
+        />
+      )}
       {showBackerModal && (
         <BackerActionModal
           open={showBackerModal}
@@ -332,7 +373,7 @@ const UserCampaign = () => {
                       width: "150px",
                       borderRadius: "50px",
                     }}
-                    disabled={!canWithdraw}
+                    disabled={!canWithdraw || item?.status === "W"}
                   >
                     Withdraw
                   </Button>
@@ -342,13 +383,14 @@ const UserCampaign = () => {
             {
               name: "funding",
               data: (value, item) => {
-                return "$" + value;
+                return <EthToUsdDisplay ethAmount={value} />;
               },
             },
             {
               name: "funded",
               data: (value, item) => {
-                return "$" + value;
+                const fundedAmount = item.chainData?.totalRaised || "0";
+                return <EthToUsdDisplay ethAmount={fundedAmount} />;
               },
             },
             {
@@ -369,7 +411,12 @@ const UserCampaign = () => {
                 return (
                   <Box
                     onClick={() => {
-                      if (value === "C" || value === "F" || value === "UR") {
+                      if (
+                        value === "C" ||
+                        value === "F" ||
+                        value === "UR" ||
+                        value === "W"
+                      ) {
                         toast.error("You can't change status of this campaign");
                         return;
                       }
@@ -442,6 +489,10 @@ const UserCampaign = () => {
                       sx={{ marginX: 1, backgroundColor: "#e0e0e0" }}
                     />
                     <Button
+                      onClick={() => {
+                        setSelectedCampaign(item._id);
+                        setDeleteConfirmationModal(true);
+                      }}
                       sx={{
                         minWidth: 0,
                         padding: "5px",
