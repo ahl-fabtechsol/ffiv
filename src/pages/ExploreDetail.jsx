@@ -129,6 +129,17 @@ export default function Page() {
         value,
       });
       await tx.wait();
+      const response = await apiClient.post("backer/blockchain", {
+        campaignId: id,
+        message: "Good work",
+        moneyPledged: contribution,
+      });
+      if (!response.ok) {
+        setLoading(false);
+        toast.error(response?.data?.message || "Something went wrong");
+        return;
+      }
+      setLoading(false);
       toast.success("Contribution successful!");
     } catch (err) {
       toast.error("Contribution failed. See console.");
@@ -216,11 +227,7 @@ export default function Page() {
             {data?.shortSummary || "An innovative project changing the world."}
           </p>
           <Button
-            onClick={() =>
-              navigate("/payment", {
-                state: { rewards: rewards, campaignId: id },
-              })
-            }
+            onClick={() => setPaymentSelectionModal(true)}
             className="bg_primary p-10 "
             sx={{
               textTransform: "none",
@@ -356,11 +363,7 @@ export default function Page() {
                   })}
                 </ul>
                 <button
-                  onClick={() =>
-                    navigate("/payment", {
-                      state: { rewards: rewards, campaignId: id },
-                    })
-                  }
+                  onClick={() => setPaymentSelectionModal(true)}
                   className="w-full bg_primary hover:bg_primary text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out"
                 >
                   Claim Reward
